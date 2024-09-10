@@ -1,7 +1,7 @@
 {
-  "name": "express-api-starter",
+  "name": "ribh-store",
   "version": "1.0.0",
-  "description": "Express API Starter is a foundational project crafted to accelerate the development of Express-based API applications. It offers a solid starting point with essential features and configurations commonly required in modern web APIs.",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "npm install && tsc",
