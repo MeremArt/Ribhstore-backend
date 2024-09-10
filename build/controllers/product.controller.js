@@ -17,16 +17,24 @@ const response_util_1 = __importDefault(require("../utils/helpers/response.util"
 const constants_config_1 = require("../configs/constants.config");
 const statusCodes_util_1 = require("../utils/statusCodes.util");
 const httpException_util_1 = __importDefault(require("../utils/helpers/httpException.util"));
-const { create, findById, findAll } = new product_service_1.default();
+const { create, findById, findAll, findByName } = new product_service_1.default();
 const { CREATED, FETCHED, NO_QUERY } = constants_config_1.MESSAGES.PRODUCT;
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
+const deployedLink = "https://ribh-store.vercel.app";
 class ProductController {
     addProduct(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const data = req.body;
+                if (yield findByName(data.name)) {
+                    return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, `Product with the same name already exists`, res);
+                }
                 const product = yield create(data);
-                return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, product);
+                const encodedProductName = product === null || product === void 0 ? void 0 : product.name.replace(/\s+/g, '-');
+                return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, {
+                    product,
+                    blink: `${deployedLink}/${encodedProductName}`
+                });
             }
             catch (error) {
                 if (error instanceof httpException_util_1.default) {
@@ -41,7 +49,11 @@ class ProductController {
             try {
                 const id = req.params.id;
                 const product = yield findById(id);
-                return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, product);
+                const encodedProductName = product === null || product === void 0 ? void 0 : product.name.replace(/\s+/g, '-');
+                return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, {
+                    product,
+                    blink: `${deployedLink}/${encodedProductName}`
+                });
             }
             catch (error) {
                 if (error instanceof httpException_util_1.default) {

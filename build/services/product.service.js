@@ -19,7 +19,7 @@ const httpException_util_1 = __importDefault(require("../utils/helpers/httpExcep
 const statusCodes_util_1 = require("../utils/statusCodes.util");
 const mongoose_1 = require("mongoose");
 const ProductRepository = new base_repository_1.default(product_model_1.default);
-const { DRIVER_NOT_FOUND } = constants_config_1.MESSAGES.PRODUCT;
+const { PRODUCT_NOT_FOUND } = constants_config_1.MESSAGES.PRODUCT;
 class ProductService {
     create(product) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,7 +39,22 @@ class ProductService {
                 }
                 const product = yield ProductRepository.findById(id);
                 if (!product)
-                    throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, DRIVER_NOT_FOUND);
+                    throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, PRODUCT_NOT_FOUND);
+                return product;
+            }
+            catch (error) {
+                if ((error.status === statusCodes_util_1.NOT_FOUND) || (error.status === constants_config_1.MESSAGES.NOT_ID))
+                    throw error;
+                throw new httpException_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, error.message);
+            }
+        });
+    }
+    findByName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const product = yield ProductRepository.findOne({ name });
+                if (!product)
+                    throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, PRODUCT_NOT_FOUND);
                 return product;
             }
             catch (error) {
@@ -53,8 +68,6 @@ class ProductService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const product = yield ProductRepository.find();
-                if (!product)
-                    throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, DRIVER_NOT_FOUND);
                 return product;
             }
             catch (error) {

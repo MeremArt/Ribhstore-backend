@@ -28,14 +28,15 @@ export default class ProductController {
 
             const data = req.body;
 
-            if(await findByName(data.name)) {
+            if (await findByName(data.name)) {
                 return new CustomResponse(BAD_REQUEST, false, `Product with the same name already exists`, res);
             }
             const product = await create(data);
             const encodedProductName = product?.name.replace(/\s+/g, '-');
 
             return new CustomResponse(ADDED, true, CREATED, res, {
-                product, blink: `${deployedLink}/${encodedProductName}`
+                product,
+                blink: `${deployedLink}/${encodedProductName}`
             });
 
         } catch (error) {
@@ -59,7 +60,8 @@ export default class ProductController {
             const encodedProductName = product?.name.replace(/\s+/g, '-');
 
             return new CustomResponse(OK, true, FETCHED, res, {
-                product, blink: `${deployedLink}/${encodedProductName}`
+                product,
+                blink: `${deployedLink}/${encodedProductName}`
             });
 
         } catch (error) {
