@@ -72,9 +72,9 @@ export default class ActionController {
       const price = product?.price!;
       const sellerPubkey: PublicKey = new PublicKey(product?.merchantId as string);
 
-      if (price * LAMPORTS_PER_SOL < minimumBalance) {
-        throw new HttpException(BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
-      }
+      // if (price * LAMPORTS_PER_SOL < minimumBalance) {
+      //   throw new HttpException(BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
+      // }
 
       const transaction = new Transaction();
       transaction.add(

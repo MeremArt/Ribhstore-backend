@@ -68,9 +68,9 @@ class ActionController {
                 const minimumBalance = yield connection.getMinimumBalanceForRentExemption(0);
                 const price = product === null || product === void 0 ? void 0 : product.price;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
-                if (price * web3_js_1.LAMPORTS_PER_SOL < minimumBalance) {
-                    throw new httpException_util_1.default(statusCodes_util_1.BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
-                }
+                // if (price * LAMPORTS_PER_SOL < minimumBalance) {
+                //   throw new HttpException(BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
+                // }
                 const transaction = new web3_js_1.Transaction();
                 transaction.add(web3_js_1.SystemProgram.transfer({
                     fromPubkey: account,
