@@ -13,7 +13,7 @@ export const MESSAGES = {
     PRODUCT: {
         CREATED: "Product added successfully.",
         FETCHED: "Product's info fetched successfully.",
-        DRIVER_NOT_FOUND: "Product not found.",
+        PRODUCT_NOT_FOUND: "Product not found.",
         NO_QUERY: "Please provide the needed query."
     },
     INVALID_ID: "Id doesn't exists.",

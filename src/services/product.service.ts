@@ -8,7 +8,7 @@ import { isValidObjectId } from "mongoose";
 const ProductRepository = new BaseRepository(
     Product
 );
-const { DRIVER_NOT_FOUND } = MESSAGES.PRODUCT;
+const { PRODUCT_NOT_FOUND } = MESSAGES.PRODUCT;
 
 export default class ProductService {
 
@@ -26,12 +26,29 @@ export default class ProductService {
     async findById(id: string) {
         try {
 
-            if(!isValidObjectId(id)) {
+            if (!isValidObjectId(id)) {
                 throw new HttpException(BAD_REQUEST, MESSAGES.NOT_ID);
             }
             const product = await ProductRepository.findById(id);
 
-            if (!product) throw new HttpException(NOT_FOUND, DRIVER_NOT_FOUND);
+            if (!product) throw new HttpException(NOT_FOUND, PRODUCT_NOT_FOUND);
+
+            return product;
+
+        } catch (error: any) {
+
+            if ((error.status === NOT_FOUND) || (error.status === MESSAGES.NOT_ID)) throw error;
+
+            throw new HttpException(INTERNAL_SERVER_ERROR, error.message);
+        }
+    }
+
+    async findByName(name: string) {
+        try {
+
+            const product = await ProductRepository.findOne({ name });
+
+            if (!product) throw new HttpException(NOT_FOUND, PRODUCT_NOT_FOUND);
 
             return product;
 
@@ -46,8 +63,6 @@ export default class ProductService {
     async findAll() {
         try {
             const product = await ProductRepository.find();
-
-            if (!product) throw new HttpException(NOT_FOUND, DRIVER_NOT_FOUND);
 
             return product;
 
