@@ -53,8 +53,6 @@ class ProductService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const product = yield ProductRepository.findOne({ name });
-                if (!product)
-                    throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, PRODUCT_NOT_FOUND);
                 return product;
             }
             catch (error) {

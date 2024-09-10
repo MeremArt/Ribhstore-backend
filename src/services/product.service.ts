@@ -48,8 +48,6 @@ export default class ProductService {
 
             const product = await ProductRepository.findOne({ name });
 
-            if (!product) throw new HttpException(NOT_FOUND, PRODUCT_NOT_FOUND);
-
             return product;
 
         } catch (error: any) {
