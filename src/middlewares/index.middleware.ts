@@ -11,6 +11,7 @@ export default (app: Application) => {
   // Logging middleware
   app.use(morgan("combined"));
 
+  app.options("*", cors());
   // CORS middleware
   app.use(cors({
     origin: "*",

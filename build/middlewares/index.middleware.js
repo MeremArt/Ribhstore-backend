@@ -14,6 +14,7 @@ const constants_config_1 = require("../configs/constants.config");
 exports.default = (app) => {
     // Logging middleware
     app.use((0, morgan_1.default)("combined"));
+    app.options("*", (0, cors_1.default)());
     // CORS middleware
     app.use((0, cors_1.default)({
         origin: "*",

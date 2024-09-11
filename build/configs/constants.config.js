@@ -19,6 +19,10 @@ exports.MESSAGES = {
         PRODUCT_NOT_FOUND: "Product not found.",
         NO_QUERY: "Please provide the needed query."
     },
+    TRANSACTION: {
+        FETCHED: "Transaction's info fetched successfully.",
+        TRANSACTION_NOT_FOUND: "Transaction not found."
+    },
     INVALID_ID: "Id doesn't exists.",
     NOT_ID: "Not a valid object Id.",
     UNEXPECTED_ERROR: "An unexpected error occured"
