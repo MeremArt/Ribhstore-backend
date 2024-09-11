@@ -21,11 +21,11 @@ export default class TransactionController {
             const { publicKey, numTx } = req.query;
 
             // Validate inputs
-            // if (!publicKey || !numTx) {
-            //     return new CustomResponse(BAD_REQUEST, false, TRANSACTION_NOT_FOUND, res);
-            // }
+            if (!publicKey || !numTx) {
+                return new CustomResponse(BAD_REQUEST, false, TRANSACTION_NOT_FOUND, res);
+            }
 
-            const transactions = await getTransactions(String("Dfo4P23Au7U5ZdZV8myrh3j7gY4HKai7qoVop33EaKwd"), Number(numTx));
+            const transactions = await getTransactions(String(publicKey), Number(numTx));
 
             return new CustomResponse(OK, true, FETCHED, res, transactions);
 

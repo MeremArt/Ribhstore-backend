@@ -25,10 +25,10 @@ class TransactionController {
             try {
                 const { publicKey, numTx } = req.query;
                 // Validate inputs
-                // if (!publicKey || !numTx) {
-                //     return new CustomResponse(BAD_REQUEST, false, TRANSACTION_NOT_FOUND, res);
-                // }
-                const transactions = yield (0, transaction_service_1.getTransactions)(String("Dfo4P23Au7U5ZdZV8myrh3j7gY4HKai7qoVop33EaKwd"), Number(numTx));
+                if (!publicKey || !numTx) {
+                    return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, TRANSACTION_NOT_FOUND, res);
+                }
+                const transactions = yield (0, transaction_service_1.getTransactions)(String(publicKey), Number(numTx));
                 return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, transactions);
             }
             catch (error) {
