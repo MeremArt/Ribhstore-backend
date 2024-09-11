@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import ProductService from "../services/product.service";
 import CustomResponse from "../utils/helpers/response.util";
-import { MESSAGES } from "../configs/constants.config";
+import { ACTIONS_CORS_HEADERS, MESSAGES } from "../configs/constants.config";
 import { INTERNAL_SERVER_ERROR, OK, BAD_REQUEST } from "../utils/statusCodes.util";
 import HttpException from "../utils/helpers/httpException.util";
 import {
@@ -12,7 +12,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
-import { ACTIONS_CORS_HEADERS, ActionGetResponse, ActionPostRequest, ActionPostResponse } from "@solana/actions";
+import { ActionGetResponse, ActionPostRequest, ActionPostResponse } from "@solana/actions";
 
 const { findByName } = new ProductService();
 const { UNEXPECTED_ERROR } = MESSAGES;
@@ -71,10 +71,6 @@ export default class ActionController {
 
       const price = product?.price!;
       const sellerPubkey: PublicKey = new PublicKey(product?.merchantId as string);
-
-      // if (price * LAMPORTS_PER_SOL < minimumBalance) {
-      //   throw new HttpException(BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
-      // }
 
       const transaction = new Transaction();
       transaction.add(

@@ -18,7 +18,6 @@ const constants_config_1 = require("../configs/constants.config");
 const statusCodes_util_1 = require("../utils/statusCodes.util");
 const httpException_util_1 = __importDefault(require("../utils/helpers/httpException.util"));
 const web3_js_1 = require("@solana/web3.js");
-const actions_1 = require("@solana/actions");
 const { findByName } = new product_service_1.default();
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
 class ActionController {
@@ -36,7 +35,7 @@ class ActionController {
                     description: `${product === null || product === void 0 ? void 0 : product.description}`,
                     title: `${product === null || product === void 0 ? void 0 : product.name}`,
                 };
-                res.set(actions_1.ACTIONS_CORS_HEADERS);
+                res.set(constants_config_1.ACTIONS_CORS_HEADERS);
                 return res.json(payload);
             }
             catch (error) {
@@ -68,9 +67,6 @@ class ActionController {
                 const minimumBalance = yield connection.getMinimumBalanceForRentExemption(0);
                 const price = product === null || product === void 0 ? void 0 : product.price;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
-                // if (price * LAMPORTS_PER_SOL < minimumBalance) {
-                //   throw new HttpException(BAD_REQUEST, `Account may not be rent exempt: ${sellerPubkey.toBase58()}`);
-                // }
                 const transaction = new web3_js_1.Transaction();
                 transaction.add(web3_js_1.SystemProgram.transfer({
                     fromPubkey: account,
@@ -86,7 +82,7 @@ class ActionController {
                     }).toString('base64'),
                     message: `You've successfully purchased ${product === null || product === void 0 ? void 0 : product.name} for ${price} SOL 🎊`,
                 };
-                res.set(actions_1.ACTIONS_CORS_HEADERS);
+                res.set(constants_config_1.ACTIONS_CORS_HEADERS);
                 return res.status(200).json(payload);
             }
             catch (error) {
