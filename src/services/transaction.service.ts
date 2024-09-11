@@ -39,7 +39,7 @@ export const getTransactions = async (publicKey: string, numTx: number) => {
                 signature: transaction.signature,
                 date: date.toISOString(),
                 // status: transaction.confirmationStatus || "unknown",
-                amount: amount / 1e9, // Convert lamports to SOL
+                amount: Number((amount / 1e9).toFixed(4)), // Convert lamports to SOL
             });
         }
 
