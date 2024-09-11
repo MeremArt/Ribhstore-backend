@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import ActionController from '../controllers/action.controllers';
-import { ACTIONS_CORS_HEADERS } from "../configs/constants.config";
+import { createActionHeaders } from "@solana/actions";
 const router = Router();
 const {
     getAction,
@@ -9,13 +9,11 @@ const {
 
 //get action
 router.get("/:name", getAction);
+
+//options action
 router.options("/:name", (_req: Request, res: Response) => {
-    res.set({
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,OPTIONS",
-        "Access-Control-Allow-Headers":
-            "Content-Type, Authorization, Content-Encoding, Accept-Encoding"
-    }).send();
+    const headers = createActionHeaders();
+    res.set(headers);
     return res;
 });
 
