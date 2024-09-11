@@ -14,7 +14,7 @@ router.get("/:name", getAction);
 router.options("/:name", (_req: Request, res: Response) => {
     const headers = createActionHeaders();
     res.set(headers);
-    return res;
+    return res.json();
 });
 
 //post action
