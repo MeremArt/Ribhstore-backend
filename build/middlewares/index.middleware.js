@@ -10,6 +10,7 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const errors_middleware_1 = __importDefault(require("./errors.middleware"));
 const index_route_1 = __importDefault(require("../routes/index.route"));
+const action_routes_1 = __importDefault(require("../routes/action.routes"));
 const constants_config_1 = require("../configs/constants.config");
 exports.default = (app) => {
     // Logging middleware
@@ -31,6 +32,8 @@ exports.default = (app) => {
     app.use((0, helmet_1.default)());
     // Custom error handling middleware
     app.use(errors_middleware_1.default);
+    // Action routes
+    app.use("/", action_routes_1.default);
     // Mounting routes
     app.use(constants_config_1.BASEPATH, index_route_1.default);
 };

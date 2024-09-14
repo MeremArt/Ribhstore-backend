@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import actionRoute from "./action.routes";
 import productRoute from "./product.route";
 import transactionRoute from "./transaction.routes";
 import { OK } from '../utils/statusCodes.util';
@@ -13,6 +12,5 @@ router.get("/", (req: Request, res: Response) => {
 
 router.use("/product", productRoute);
 router.use("/transaction", transactionRoute);
-router.use("/", actionRoute);
 
 export default router;

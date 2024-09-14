@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const action_routes_1 = __importDefault(require("./action.routes"));
 const product_route_1 = __importDefault(require("./product.route"));
 const transaction_routes_1 = __importDefault(require("./transaction.routes"));
 const statusCodes_util_1 = require("../utils/statusCodes.util");
@@ -16,5 +15,4 @@ router.get("/", (req, res) => {
 });
 router.use("/product", product_route_1.default);
 router.use("/transaction", transaction_routes_1.default);
-router.use("/", action_routes_1.default);
 exports.default = router;

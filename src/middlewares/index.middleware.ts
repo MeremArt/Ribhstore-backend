@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import errorHandler from "./errors.middleware";
 import indexRoutes from "../routes/index.route";
+import actionRoutes from "../routes/action.routes";
 import { BASEPATH } from "../configs/constants.config";
 
 export default (app: Application) => {
@@ -31,6 +32,9 @@ export default (app: Application) => {
 
   // Custom error handling middleware
   app.use(errorHandler);
+
+  // Action routes
+  app.use("/", actionRoutes);
 
   // Mounting routes
   app.use(BASEPATH, indexRoutes);
