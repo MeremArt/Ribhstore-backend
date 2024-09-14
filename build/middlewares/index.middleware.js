@@ -19,7 +19,7 @@ exports.default = (app) => {
     // CORS middleware
     app.use((0, cors_1.default)({
         origin: "*",
-        methods: ["GET", "POST", "PUT", "PATCH"],
+        methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
         allowedHeaders: ['Content-Type', 'Authorization']
     }));
     // Configuration setup (dotenv)
