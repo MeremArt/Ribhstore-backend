@@ -13,7 +13,7 @@ const router = express_1.default.Router();
 passport_1.default.use(new TwitterStrategy({
     clientID: process.env.TWITTER_CONSUMER_KEY,
     clientSecret: process.env.TWITTER_CONSUMER_SECRET,
-    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback"
+    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback"
 }, (token, tokenSecret, profile, done) => {
     console.log("Token:", token);
     console.log("TokenSecret:", tokenSecret);
