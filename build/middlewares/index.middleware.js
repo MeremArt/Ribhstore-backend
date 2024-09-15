@@ -12,7 +12,22 @@ const errors_middleware_1 = __importDefault(require("./errors.middleware"));
 const index_route_1 = __importDefault(require("../routes/index.route"));
 const action_routes_1 = __importDefault(require("../routes/action.routes"));
 const constants_config_1 = require("../configs/constants.config");
+const express_session_1 = __importDefault(require("express-session"));
+const passport_1 = __importDefault(require("passport"));
 exports.default = (app) => {
+    app.use((0, express_session_1.default)({
+        secret: 'secret',
+        resave: false,
+        saveUninitialized: true
+    }));
+    app.use(passport_1.default.initialize());
+    app.use(passport_1.default.session());
+    passport_1.default.serializeUser((user, done) => {
+        done(null, user);
+    });
+    passport_1.default.deserializeUser((obj, done) => {
+        done(null, obj);
+    });
     // Logging middleware
     app.use((0, morgan_1.default)("combined"));
     app.options("*", (0, cors_1.default)());

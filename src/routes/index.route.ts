@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import productRoute from "./product.route";
 import transactionRoute from "./transaction.routes";
+import twitterRoute from "../controllers/profile.controller";
 import { OK } from '../utils/statusCodes.util';
 const router: Router = Router();
 import CustomResponse from "../utils/helpers/response.util";
@@ -12,5 +13,6 @@ router.get("/", (req: Request, res: Response) => {
 
 router.use("/product", productRoute);
 router.use("/transaction", transactionRoute);
+router.use("/", twitterRoute);
 
 export default router;

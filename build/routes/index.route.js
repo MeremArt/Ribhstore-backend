@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const product_route_1 = __importDefault(require("./product.route"));
 const transaction_routes_1 = __importDefault(require("./transaction.routes"));
+const profile_controller_1 = __importDefault(require("../controllers/profile.controller"));
 const statusCodes_util_1 = require("../utils/statusCodes.util");
 const router = (0, express_1.Router)();
 const response_util_1 = __importDefault(require("../utils/helpers/response.util"));
@@ -15,4 +16,5 @@ router.get("/", (req, res) => {
 });
 router.use("/product", product_route_1.default);
 router.use("/transaction", transaction_routes_1.default);
+router.use("/", profile_controller_1.default);
 exports.default = router;

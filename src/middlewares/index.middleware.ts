@@ -7,8 +7,28 @@ import errorHandler from "./errors.middleware";
 import indexRoutes from "../routes/index.route";
 import actionRoutes from "../routes/action.routes";
 import { BASEPATH } from "../configs/constants.config";
+import session from 'express-session';
+import passport from "passport";
 
 export default (app: Application) => {
+
+  app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true
+  }));
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  passport.serializeUser((user: any, done: any) => {
+    done(null, user);
+  });
+
+  passport.deserializeUser((obj: any, done: any) => {
+    done(null, obj);
+  });
+
   // Logging middleware
   app.use(morgan("combined"));
 
