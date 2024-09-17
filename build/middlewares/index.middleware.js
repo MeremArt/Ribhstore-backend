@@ -31,12 +31,31 @@ exports.default = (app) => {
     // Logging middleware
     app.use((0, morgan_1.default)("combined"));
     // CORS middleware
-    app.options("*", (0, cors_1.default)());
-    app.use((0, cors_1.default)({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
-        allowedHeaders: ['Content-Type', 'Authorization']
-    }));
+    const allowedOrigins = [
+        'https://www.ribh.store',
+        'http://localhost:3000',
+    ];
+    const corsOptions = {
+        origin: function (origin, callback) {
+            if (allowedOrigins.includes(origin) || !origin) {
+                callback(null, true);
+            }
+            else {
+                callback(new Error('Not allowed by CORS'), false);
+            }
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: [
+            'Content-Type',
+            'Authorization',
+            'X-Requested-With',
+            'Accept',
+            'Origin'
+        ]
+    };
+    app.options('*', (0, cors_1.default)(corsOptions));
+    app.use('*', (0, cors_1.default)(corsOptions));
     // Configuration setup (dotenv)
     if (process.env.NODE_ENV !== 'production')
         (0, dotenv_1.configDotenv)();
