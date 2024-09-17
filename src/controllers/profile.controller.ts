@@ -28,12 +28,6 @@ const {
 } = new UserService();
 const router = express.Router();
 
-router.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: false
-}));
-
 passport.use(new TwitterStrategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1 as string,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,

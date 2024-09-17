@@ -23,16 +23,10 @@ const httpException_util_1 = __importDefault(require("../utils/helpers/httpExcep
 const response_util_1 = __importDefault(require("../utils/helpers/response.util"));
 const statusCodes_util_1 = require("../utils/statusCodes.util");
 const constants_config_1 = require("../configs/constants.config");
-const express_session_1 = __importDefault(require("express-session"));
 const { CREATED, FETCHED, UPDATED, NO_QUERY, USER_NOT_FOUND } = constants_config_1.MESSAGES.USER;
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
 const { create, findById, findByQuery } = new user_service_1.default();
 const router = express_1.default.Router();
-router.use((0, express_session_1.default)({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: false
-}));
 passport_1.default.use(new passport_twitter_1.Strategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,

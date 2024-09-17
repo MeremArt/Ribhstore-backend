@@ -9,21 +9,14 @@ import actionRoutes from "../routes/action.routes";
 import { BASEPATH } from "../configs/constants.config";
 import session from 'express-session';
 import passport from "passport";
-import store from 'session-file-store';
 
-const FileStore = store(session);
 
 export default (app: Application) => {
 
   app.use(session({
     secret: 'secret',
     resave: false,
-    saveUninitialized: false,
-    store: new FileStore({
-      // Optional configurations for file-store
-      path: './sessions',  // Path to save session files
-      ttl: 3600,  // Time to live for session files in seconds
-    })
+    saveUninitialized: false
   }));
 
   app.use(passport.initialize());
