@@ -209,4 +209,32 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
 
 });
 
+// Verify user email
+router.get('/user', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const email = req.query.email;
+        if (!email) {
+            throw new Error("QUERY is required");
+        }
+
+        const user = await findByQuery({ email });
+        if (user) {
+            return new CustomResponse(OK, true, "Email is whitelisted", res, user);
+        } else {
+            throw new HttpException(NOT_FOUND, USER_NOT_FOUND);
+        }
+
+    } catch (error) {
+
+        if (error instanceof HttpException) {
+
+            return new CustomResponse(error.status, false, error.message, res);
+
+        }
+        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+
+});
+
 export default router;

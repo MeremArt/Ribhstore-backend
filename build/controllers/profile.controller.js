@@ -166,4 +166,26 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
     }
 }));
+// Verify user email
+router.get('/user', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const email = req.query.email;
+        if (!email) {
+            throw new Error("QUERY is required");
+        }
+        const user = yield findByQuery({ email });
+        if (user) {
+            return new response_util_1.default(statusCodes_util_1.OK, true, "Email is whitelisted", res, user);
+        }
+        else {
+            throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, USER_NOT_FOUND);
+        }
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
 exports.default = router;
