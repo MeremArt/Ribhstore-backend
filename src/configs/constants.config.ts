@@ -3,6 +3,7 @@ export const JWT_SECRET = process.env.JWT_SECRET;
 export const BASEPATH = "/api/v1";
 export const DATABASES = {
     PRODUCT: "Product",
+    USER: "User",
 };
 export const MAXAGE = 3 * 24 * 60 * 60;
 export const MESSAGES = {
@@ -14,6 +15,13 @@ export const MESSAGES = {
         CREATED: "Product added successfully.",
         FETCHED: "Product's info fetched successfully.",
         PRODUCT_NOT_FOUND: "Product not found.",
+        NO_QUERY: "Please provide the needed query."
+    },
+    USER: {
+        CREATED: "User added successfully.",
+        UPDATED: "User profile updated successfully.",
+        FETCHED: "User's info fetched successfully.",
+        USER_NOT_FOUND: "User not found.",
         NO_QUERY: "Please provide the needed query."
     },
     TRANSACTION: {

@@ -10,8 +10,8 @@
     // "disableReferencedProjectLoad": true,             /* Reduce the number of projects loaded automatically by TypeScript. */
     /* Language and Environment */
     "typeRoots": [
-      "./types",
-      "./node_modules/@types"
+      "src/types",
+      "./node_modules/@types", "./src/types"
     ],
     "target": "es2016", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "lib": [
@@ -37,6 +37,7 @@
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
+    "types": ["node", "express-session"],
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "resolveJsonModule": true,                        /* Enable importing .json files. */
@@ -100,6 +101,6 @@
   },
   "include": [
     "src/**/*.ts",
-    "types/**/*.d.ts"
+    "src/types/**/*.d.ts"
   ]
 }

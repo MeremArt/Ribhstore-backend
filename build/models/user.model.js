@@ -1,34 +1,29 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importStar(require("mongoose"));
-const UserSchema = new mongoose_1.Schema({
-    userId: { type: String, required: true, unique: true },
-    walletAddress: { type: String, required: false, unique: true },
-    screenName: { type: String, required: true },
-    oauthToken: { type: String, required: true },
-    oauthTokenSecret: { type: String, required: true }
+const mongoose_1 = require("mongoose");
+const constants_config_1 = require("../configs/constants.config");
+const userSchema = new mongoose_1.Schema({
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+    twitterId: {
+        type: String,
+        required: false,
+        trim: true,
+        unique: true
+    },
+    pubKey: {
+        type: String,
+        required: false,
+        trim: true,
+        unique: true
+    }
+}, {
+    strict: true,
+    versionKey: false
 });
-exports.default = mongoose_1.default.model('User', UserSchema);
+const User = (0, mongoose_1.model)(constants_config_1.DATABASES.USER, userSchema, constants_config_1.DATABASES.USER);
+exports.default = User;

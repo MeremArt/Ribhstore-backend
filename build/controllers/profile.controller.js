@@ -1,293 +1,169 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const passport_1 = __importDefault(require("passport"));
-const passport_twitter_oauth2_1 = __importDefault(require("passport-twitter-oauth2"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config(); // Ensure environment variables are loaded
-const TwitterStrategy = passport_twitter_oauth2_1.default.Strategy;
+const passport_twitter_1 = require("passport-twitter");
+const user_service_1 = __importDefault(require("../services/user.service"));
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.configDotenv)();
+const axios_1 = __importDefault(require("axios"));
+const httpException_util_1 = __importDefault(require("../utils/helpers/httpException.util"));
+const response_util_1 = __importDefault(require("../utils/helpers/response.util"));
+const statusCodes_util_1 = require("../utils/statusCodes.util");
+const constants_config_1 = require("../configs/constants.config");
+const express_session_1 = __importDefault(require("express-session"));
+const { CREATED, FETCHED, UPDATED, NO_QUERY, USER_NOT_FOUND } = constants_config_1.MESSAGES.USER;
+const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
+const { create, findById, findByQuery } = new user_service_1.default();
 const router = express_1.default.Router();
-passport_1.default.use(new TwitterStrategy({
-    clientID: process.env.TWITTER_CONSUMER_KEY,
-    clientSecret: process.env.TWITTER_CONSUMER_SECRET,
-    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback"
-}, (token, tokenSecret, profile, done) => {
-    console.log("Token:", token);
-    console.log("TokenSecret:", tokenSecret);
-    console.log("Profile:", profile);
-    // In a real-world app, you'd save the profile info to your database here
-    return done(null, profile);
+router.use((0, express_session_1.default)({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false
 }));
+passport_1.default.use(new passport_twitter_1.Strategy({
+    consumerKey: process.env.TWITTER_CONSUMER_KEY1,
+    consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,
+    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback",
+}, (token, tokenSecret, profile, done) => {
+    const userProfile = {
+        id: profile.id,
+        username: profile.username,
+        displayName: profile.displayName,
+        photos: profile.photos ? profile.photos.map(photo => photo.value) : []
+    };
+    return done(null, userProfile);
+}));
+passport_1.default.serializeUser((user, done) => {
+    done(null, user);
+});
+passport_1.default.deserializeUser((obj, done) => {
+    done(null, obj);
+});
 // Initiate authentication with Twitter
-router.get('/auth/twitter', passport_1.default.authenticate('twitter'));
+router.get('/auth/twitter', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const userEmail = req.query.email;
+    if (!userEmail) {
+        return res.status(400).json({ error: 'Email is required' });
+    }
+    const existingUser = yield findByQuery({ email: userEmail });
+    if (!existingUser) {
+        return next(new Error('Email not whitelisted'));
+    }
+    // Store the email in the session
+    // req.session.userEmail = userEmail as string;
+    console.log('Email stored', userEmail);
+    req.email = userEmail;
+    // res.redirect(`http://localhost:9871/api/v1/auth/twitter/auth/twitter?state=${userEmail}`);
+    // Continue with Twitter OAuth
+    passport_1.default.authenticate('twitter', { state: "userrrrr" })(req, res, next);
+}));
 // Handle Twitter OAuth callback
-router.get('/auth/twitter/callback', passport_1.default.authenticate('twitter', { failureRedirect: '/' }), (req, res, next) => {
+router.get('/auth/twitter/callback', passport_1.default.authenticate('twitter', { failureRedirect: '/' }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.user) {
         return next(new Error('User not authenticated'));
     }
+    const userEmail = req.email;
+    console.log(req.query.state, "state");
+    console.log(userEmail, "req");
+    const email = req.query.state;
+    if (!email) {
+        return next(new Error('User email not found in session'));
+    }
+    // Find the user in the DB based on email and save Twitter profile info
+    const existingUser = yield findByQuery({ email });
+    if (existingUser) {
+        existingUser.twitterId = req.user.id;
+        yield existingUser.save();
+    }
+    else {
+        return next(new Error('Email not whitelisted'));
+    }
     // Respond with user information (assuming `req.user` has the necessary fields)
     return res.json(req.user); // In a real app, consider defining a User type and using `req.user as User`.
-});
+}));
+// create profile
+router.post('/auth/whitelist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const emails = req.body.emails;
+        const whitelistedUsers = yield Promise.all(emails.map((email) => __awaiter(void 0, void 0, void 0, function* () {
+            // Check if the user is already whitelisted or create a new record
+            let user = yield findByQuery({ email });
+            if (!user) {
+                user = yield create({ email });
+            }
+            return user;
+        })));
+        return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, whitelistedUsers);
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
+// connect wallet
+router.patch('/auth/connectWallet', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const email = req.query.email;
+        if (!email) {
+            throw new Error("QUERY is required");
+        }
+        const user = yield findByQuery({ email });
+        if (user) {
+            user.pubKey = req.body.pubKey;
+            yield user.save();
+        }
+        else {
+            return next(new Error('Email not whitelisted'));
+        }
+        return new response_util_1.default(statusCodes_util_1.OK, true, UPDATED, res, user);
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
+// Fetch user information from twitter account
+router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield findById(req.params.id);
+        if (!user) {
+            throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, USER_NOT_FOUND);
+        }
+        if (!user.twitterId) {
+            throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, "Please connect twitter account");
+        }
+        const url = `https://api.twitter.com/2/users/${user.twitterId}?user.fields=username,profile_image_url,description`;
+        // Use your bearer token for authentication
+        const response = yield axios_1.default.get(url, {
+            headers: {
+                Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`
+            }
+        });
+        // Return the latest Twitter profile data
+        return new response_util_1.default(statusCodes_util_1.OK, true, UPDATED, res, response.data);
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
 exports.default = router;
-// import axios from 'axios';
-// import express, { Request, Response } from 'express';
-// import OAuth from 'oauth-1.0a';
-// import crypto from 'crypto';
-// import oauthSignature from 'oauth-signature';
-// import { v4 as uuidv4 } from 'uuid';
-// const router = express.Router();
-// // Your Twitter app credentials
-// const oauth = new OAuth({
-//     consumer: {
-//         key: 'your_consumer_key',
-//         secret: 'your_consumer_secret',
-//     },
-//     signature_method: 'HMAC-SHA1',
-//     hash_function(baseString: string, key: string) {
-//         return crypto.createHmac('sha1', key).update(baseString).digest('base64');
-//     }
-// });
-// // Request Token Endpoint
-// router.get('/auth/twitter', async (req: Request, res: Response) => {
-//     const oauthCallback = 'http://localhost/sign-in-with-twitter';
-//     const oauthConsumerKey = process.env.TWITTER_CONSUMER_KEY;
-//     const oauthConsumerSecret = process.env.TWITTER_CONSUMER_SECRET;
-//     const oauthNonce = uuidv4().replace(/-/g, '');
-//     const oauthTimestamp = Math.floor(Date.now() / 1000);
-//     const oauthSignatureMethod = 'HMAC-SHA1';
-//     const oauthVersion = '1.0';
-//     const httpMethod = 'POST';
-//     const url = 'https://api.x.com/oauth/request_token';
-//     // Base parameters for signature
-//     const parameters = {
-//         oauth_callback: oauthCallback,
-//         oauth_consumer_key: oauthConsumerKey,
-//         oauth_nonce: oauthNonce,
-//         oauth_signature_method: oauthSignatureMethod,
-//         oauth_timestamp: oauthTimestamp,
-//         oauth_version: oauthVersion
-//     };
-//     // Generate the signature
-//     const signature = oauthSignature.generate(httpMethod, url, parameters, oauthConsumerSecret!);
-//     // Construct the Authorization header
-//     const authHeader = `OAuth oauth_callback="${encodeURIComponent(oauthCallback)}", oauth_consumer_key="${oauthConsumerKey}", oauth_nonce="${oauthNonce}", oauth_signature="${encodeURIComponent(signature)}", oauth_signature_method="${oauthSignatureMethod}", oauth_timestamp="${oauthTimestamp}", oauth_version="${oauthVersion}"`;
-//     try {
-//         const response = await axios.post(url, null, {
-//             headers: {
-//                 Authorization: authHeader,
-//                 'Content-Type': 'application/x-www-form-urlencoded',
-//                 'User-Agent': 'YourAppName/1.0'
-//             }
-//         });
-//         return res.status(200).json(response.data)
-//     } catch (error) {
-//         res.send(error);
-//     }
-// });
-// // Callback Endpoint
-// router.get('/auth/twitter/callback', async (req: Request, res: Response) => {
-//     const requestTokenUrl = 'https://api.twitter.com/oauth/access_token';
-//     const { oauth_token, oauth_verifier } = req.query;
-//     const token = {
-//         key: oauth_token as string,
-//         secret: 'request_token_secret', // Store the request token secret from the initial request
-//     };
-//     const accessTokens = oauth.authorize({
-//         url: requestTokenUrl,
-//         method: 'POST',
-//         data: {
-//             oauth_verifier: oauth_verifier as string,
-//         },
-//     }, token);
-//     try {
-//         const response = await axios.post(requestTokenUrl, null, {
-//             headers: {
-//                 Authorization: oauth.toHeader(accessTokens).Authorization,
-//             },
-//         });
-//         const data = new URLSearchParams(response.data);
-//         const accessToken = data.get('oauth_token');
-//         const accessTokenSecret = data.get('oauth_token_secret');
-//         const userId = data.get('user_id');
-//         const screenName = data.get('screen_name');
-//         res.send(`Access Token: ${accessToken}, Secret: ${accessTokenSecret}, User ID: ${userId}, Screen Name: ${screenName}`);
-//     } catch (error) {
-//         res.send(error);
-//     }
-// });
-// export default router;
-// // import express, { Request, Response } from 'express';
-// // import crypto from 'crypto';
-// // import Oauth1a from 'oauth-1.0a';
-// // import axios from 'axios'; // Import axios
-// // import { URLSearchParams } from 'url';
-// // import UserModel from '../models/user.model';
-// // const router = express.Router();
-// // // Initialize OAuth 1.0a instance
-// // const oauth = new Oauth1a({
-// //     consumer: {
-// //         key: process.env.CONSUMER_KEY || '',
-// //         secret: process.env.CONSUMER_SECRET || ''
-// //     },
-// //     signature_method: 'HMAC-SHA1',
-// //     hash_function: (baseString: string, key: string) =>
-// //         crypto.createHmac('sha1', key).update(baseString).digest('base64')
-// // });
-// // /**
-// //  * Function to request an OAuth token from Twitter
-// //  * @returns {Promise<{ oauth_token: string; oauth_token_secret: string }>}
-// //  */
-// // async function requestToken(): Promise<{ oauth_token: string; oauth_token_secret: string }> {
-// //     const requestTokenURL = 'https://api.twitter.com/oauth/request_token?oauth_callback=oob&x_auth_access_type=write';
-// //     const authHeader = oauth.toHeader(oauth.authorize({
-// //         url: requestTokenURL,
-// //         method: 'POST'
-// //     }));
-// //     try {
-// //         const response = await axios.post(requestTokenURL, null, {
-// //             headers: {
-// //                 'Authorization': authHeader['Authorization'],
-// //                 'Content-Type': 'application/x-www-form-urlencoded'
-// //             }
-// //         });
-// //         const body = response.data;
-// //         console.log('Request Token Response:', body);
-// //         return Object.fromEntries(new URLSearchParams(body)) as { oauth_token: string; oauth_token_secret: string };
-// //     } catch (error) {
-// //         console.error('Error requesting token:', error);
-// //         throw new Error('Failed to request token');
-// //     }
-// // }
-// // /**
-// //  * Function to exchange the verifier and request token for an access token
-// //  * @param {{ oauth_token: string; oauth_token_secret: string }} tokenData
-// //  * @param {string} verifier
-// //  * @returns {Promise<{ oauth_token: string; oauth_token_secret: string; user_id: string; screen_name: string }>}
-// //  */
-// // async function accessTokens(tokenData: any, verifier: string): Promise<{ oauth_token: string; oauth_token_secret: string; user_id: string; screen_name: string }> {
-// //     const url = `https://api.twitter.com/oauth/access_token`;
-// //     const authHeader = oauth.toHeader(oauth.authorize({
-// //         url,
-// //         method: 'POST'
-// //     }, tokenData));
-// //     try {
-// //         const response = await axios.post(url, new URLSearchParams({
-// //             oauth_verifier: verifier,
-// //             oauth_token: tokenData.oauth_token
-// //         }).toString(), {
-// //             headers: {
-// //                 'Authorization': authHeader['Authorization'],
-// //                 'Content-Type': 'application/x-www-form-urlencoded'
-// //             }
-// //         });
-// //         const body = response.data;
-// //         console.log('Access Token Response:', body);
-// //         return Object.fromEntries(new URLSearchParams(body)) as { oauth_token: string; oauth_token_secret: string; user_id: string; screen_name: string };
-// //     } catch (error) {
-// //         console.error('Error exchanging token:', error);
-// //         throw new Error('Failed to exchange token');
-// //     }
-// // }
-// // async function fetchTwitterProfile(oauthToken: string, oauthTokenSecret: string): Promise<any> {
-// //     const token = {
-// //         key: oauthToken,
-// //         secret: oauthTokenSecret
-// //     };
-// //     const url = 'https://api.twitter.com/2/account/verify_credentials.json'; // Adjusted for new API version
-// //     const authHeader = oauth.toHeader(oauth.authorize({ url, method: 'GET' }, token));
-// //     try {
-// //         const response = await axios.get(url, {
-// //             headers: {
-// //                 'Authorization': authHeader['Authorization']
-// //             }
-// //         });
-// //         return response.data;
-// //     } catch (error) {
-// //         console.error('Error fetching profile:', error);
-// //         throw new Error('Failed to fetch Twitter profile');
-// //     }
-// // }
-// // // Endpoint: Fetch Twitter profile details of the user
-// // router.get('/twitter/profile', async (req: Request, res: Response) => {
-// //     try {
-// //         const { userId } = req.query; // Assumes userId is passed in query params
-// //         // Find user from DB
-// //         const user = await UserModel.findOne({ userId });
-// //         if (!user) {
-// //             return res.status(404).json({ error: 'User not found' });
-// //         }
-// //         // Fetch the user's profile from Twitter
-// //         const profile = await fetchTwitterProfile(user.oauthToken, user.oauthTokenSecret);
-// //         // Return profile details
-// //         res.json(profile);
-// //     } catch (error) {
-// //         console.error('Error fetching profile:', error);
-// //         res.status(500).json({ error: 'Failed to fetch Twitter profile' });
-// //     }
-// // });
-// // // Endpoint: Connect wallet
-// // router.post('/wallet/profile', async (req: Request, res: Response) => {
-// //     try {
-// //         const { userId } = req.query;
-// //         const { userAddress } = req.body;
-// //         // Find user from DB
-// //         const user = await UserModel.findOne({ userId });
-// //         if (!user) {
-// //             return res.status(404).json({ error: 'User not found' });
-// //         }
-// //         // Update the wallet address
-// //         user.walletAddress = userAddress;
-// //         await user.save();
-// //         // Return updated user details
-// //         res.json(user);
-// //     } catch (error) {
-// //         console.error('Error updating wallet address:', error);
-// //         res.status(500).json({ error: 'Failed to update wallet address' });
-// //     }
-// // });
-// // // Endpoint 1: Step 1: Get authorization URL
-// // router.get('/twitter/auth-url', async (req: Request, res: Response) => {
-// //     try {
-// //         // Get the request token from Twitter
-// //         const oAuthRequestToken = await requestToken();
-// //         // Generate authorization URL
-// //         const authorizeURL = `https://api.twitter.com/oauth/authorize?oauth_token=${oAuthRequestToken.oauth_token}`;
-// //         return res.json({ url: authorizeURL });
-// //     } catch (error: any) {
-// //         console.error('Error:', error.message);
-// //         res.status(500).json({ error: 'Failed to get authorization URL' });
-// //     }
-// // });
-// // // Endpoint 2: Step 2: Callback to exchange verifier for access token
-// // router.get('/twitter/callback', async (req: Request, res: Response) => {
-// //     try {
-// //         const oauthToken = req.query.oauth_token as string;
-// //         const oauthVerifier = req.query.oauth_verifier as string;
-// //         if (!oauthToken || !oauthVerifier) {
-// //             return res.status(400).json({ error: 'Missing oauth_token or oauth_verifier' });
-// //         }
-// //         // Exchange verifier for access token
-// //         const oAuthAccessToken = await accessTokens({
-// //             oauth_token: oauthToken,
-// //             oauth_token_secret: '' // OAuth token secret not needed here, can be an empty string or provided as needed
-// //         }, oauthVerifier);
-// //         // Extract user info from access token response
-// //         const { oauth_token: accessToken, oauth_token_secret, user_id, screen_name } = oAuthAccessToken;
-// //         // Save user data to DB
-// //         await UserModel.create({
-// //             userId: user_id,
-// //             screenName: screen_name,
-// //             oauthToken: accessToken,
-// //             oauthTokenSecret: oauth_token_secret
-// //         });
-// //         // Respond with user info
-// //         res.json({ user_id, screen_name, oauth_token: accessToken });
-// //     } catch (error) {
-// //         console.error('Error:', error);
-// //         res.status(500).json({ error: 'Failed to handle callback' });
-// //     }
-// // });
-// // export default router;

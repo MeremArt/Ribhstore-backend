@@ -6,6 +6,7 @@ exports.JWT_SECRET = process.env.JWT_SECRET;
 exports.BASEPATH = "/api/v1";
 exports.DATABASES = {
     PRODUCT: "Product",
+    USER: "User",
 };
 exports.MAXAGE = 3 * 24 * 60 * 60;
 exports.MESSAGES = {
@@ -17,6 +18,13 @@ exports.MESSAGES = {
         CREATED: "Product added successfully.",
         FETCHED: "Product's info fetched successfully.",
         PRODUCT_NOT_FOUND: "Product not found.",
+        NO_QUERY: "Please provide the needed query."
+    },
+    USER: {
+        CREATED: "User added successfully.",
+        UPDATED: "User profile updated successfully.",
+        FETCHED: "User's info fetched successfully.",
+        USER_NOT_FOUND: "User not found.",
         NO_QUERY: "Please provide the needed query."
     },
     TRANSACTION: {

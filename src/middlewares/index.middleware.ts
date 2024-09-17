@@ -9,13 +9,21 @@ import actionRoutes from "../routes/action.routes";
 import { BASEPATH } from "../configs/constants.config";
 import session from 'express-session';
 import passport from "passport";
+import store from 'session-file-store';
+
+const FileStore = store(session);
 
 export default (app: Application) => {
 
   app.use(session({
     secret: 'secret',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    store: new FileStore({
+      // Optional configurations for file-store
+      path: './sessions',  // Path to save session files
+      ttl: 3600,  // Time to live for session files in seconds
+    })
   }));
 
   app.use(passport.initialize());
@@ -32,8 +40,8 @@ export default (app: Application) => {
   // Logging middleware
   app.use(morgan("combined"));
 
-  app.options("*", cors());
   // CORS middleware
+  app.options("*", cors());
   app.use(cors({
     origin: "*",
     methods: ["GET", "POST", "PUT", "PATCH", "OPTIONS"],
