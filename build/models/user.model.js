@@ -12,12 +12,14 @@ const userSchema = new mongoose_1.Schema({
     twitterId: {
         type: String,
         required: false,
+        default: null,
         trim: true,
         unique: true
     },
     pubKey: {
         type: String,
         required: false,
+        default: null,
         trim: true,
         unique: true
     }

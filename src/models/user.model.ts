@@ -12,12 +12,14 @@ const userSchema = new Schema<IUser>({
     twitterId: {
         type: String,
         required: false,
+        default: null,
         trim: true,
         unique: true
     },
     pubKey: {
         type: String,
         required: false,
+        default: null,
         trim: true,
         unique: true
     }
