@@ -37,7 +37,7 @@ router.use(session({
 passport.use(new TwitterStrategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1 as string,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
-    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback",
+    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback",
 },
     (token: string, tokenSecret: string, profile: Profile, done: (error: any, user?: Express.User | false) => void) => {
 
@@ -90,22 +90,22 @@ router.get('/auth/twitter/callback',
             return next(new Error('User not authenticated'));
         }
 
-        const userEmail = (req as any).email;
-        console.log(req.query.state, "state")
-        console.log(userEmail, "req")
-        const email = req.query.state as string;
-        if (!email) {
-            return next(new Error('User email not found in session'));
-        }
+        // const userEmail = (req as any).email;
+        // console.log(req.query.state, "state")
+        // console.log(userEmail, "req")
+        // const email = req.query.state as string;
+        // if (!email) {
+        //     return next(new Error('User email not found in session'));
+        // }
 
         // Find the user in the DB based on email and save Twitter profile info
-        const existingUser = await findByQuery({ email });
-        if (existingUser) {
-            existingUser.twitterId = (req as any).user.id;
-            await existingUser.save();
-        } else {
-            return next(new Error('Email not whitelisted'));
-        }
+        // const existingUser = await findByQuery({ email });
+        // if (existingUser) {
+        //     existingUser.twitterId = (req as any).user.id;
+        //     await existingUser.save();
+        // } else {
+        //     return next(new Error('Email not whitelisted'));
+        // }
 
         // Respond with user information (assuming `req.user` has the necessary fields)
         return res.json(req.user); // In a real app, consider defining a User type and using `req.user as User`.

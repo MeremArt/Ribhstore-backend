@@ -36,7 +36,7 @@ router.use((0, express_session_1.default)({
 passport_1.default.use(new passport_twitter_1.Strategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,
-    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback",
+    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback",
 }, (token, tokenSecret, profile, done) => {
     const userProfile = {
         id: profile.id,
@@ -75,22 +75,21 @@ router.get('/auth/twitter/callback', passport_1.default.authenticate('twitter', 
     if (!req.user) {
         return next(new Error('User not authenticated'));
     }
-    const userEmail = req.email;
-    console.log(req.query.state, "state");
-    console.log(userEmail, "req");
-    const email = req.query.state;
-    if (!email) {
-        return next(new Error('User email not found in session'));
-    }
+    // const userEmail = (req as any).email;
+    // console.log(req.query.state, "state")
+    // console.log(userEmail, "req")
+    // const email = req.query.state as string;
+    // if (!email) {
+    //     return next(new Error('User email not found in session'));
+    // }
     // Find the user in the DB based on email and save Twitter profile info
-    const existingUser = yield findByQuery({ email });
-    if (existingUser) {
-        existingUser.twitterId = req.user.id;
-        yield existingUser.save();
-    }
-    else {
-        return next(new Error('Email not whitelisted'));
-    }
+    // const existingUser = await findByQuery({ email });
+    // if (existingUser) {
+    //     existingUser.twitterId = (req as any).user.id;
+    //     await existingUser.save();
+    // } else {
+    //     return next(new Error('Email not whitelisted'));
+    // }
     // Respond with user information (assuming `req.user` has the necessary fields)
     return res.json(req.user); // In a real app, consider defining a User type and using `req.user as User`.
 }));
