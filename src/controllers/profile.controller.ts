@@ -135,7 +135,7 @@ router.post('/auth/whitelist', async (req: Request, res: Response, next: NextFun
 });
 
 // connect wallet
-router.patch('/auth/connectWallet', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/auth/connect-wallet', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const email = req.query.email;
         if (!email) {
