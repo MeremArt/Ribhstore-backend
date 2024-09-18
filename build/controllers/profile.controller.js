@@ -161,40 +161,15 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!user.twitterId) {
             throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, "Please connect twitter account");
         }
-        console.log(user);
-        const url = `https://api.x.com/2/users/${user.twitterId}`;
-        // const url = `https://api.twitter.com/2/users/${user.twitterId}?user.fields=username,profile_image_url,description`;
-        // const client = new Client(process.env.BEARER_TOKEN as string);
-        // console.log(client)
-        // const response1 = await client.users.findUsersById({
-        //   "ids": [
-        //       "937750514049142784"
-        //   ],
-        //   "user.fields": [
-        //       "description",
-        //       "id",
-        //       "name",
-        //     //   "profile_banner_url",
-        //       "profile_image_url",
-        //       "url",
-        //       "username"
-        //   ]
-        // });
-        // console.log("response", response1);
-        // Log the token for debugging (optional)
-        console.log('Twitter Bearer Token:', process.env.TWITTER_BEARER_TOKEN);
-        // Use your bearer token for authentication
-        // const response = await axios.get(url, {
-        //     headers: {
-        //         Authorization: `Bearer AAAAAAAAAAAAAAAAAAAAADrUuQEAAAAAZBQ50CshxosQLJ6YJisAHeuHa4o%3DrLrHABw56YTAqjN2Dwik5jjmBUQTogXGILyJyGtppSUqXfjuug`
-        //     }
-        // });
-        // const userInfo = await twitterClient.currentUserV2()
-        const userInfo = yield twitterClient.v2.userByUsername('Jes_sie___', {
-            'user.fields': ['profile_image_url', 'username', 'name', 'description'] // Specify the fields you need
+        const userInfo = yield twitterClient.currentUserV2();
+        if (!userInfo) {
+            res.redirect("http://localhost:3000/verify-email/connect-accounts");
+        }
+        const data = yield twitterClient.v2.userByUsername(userInfo.data.username, {
+            'user.fields': ['profile_image_url', 'username', 'name']
         });
         // Return the latest Twitter profile data
-        return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, userInfo);
+        return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, data.data);
     }
     catch (error) {
         if (error instanceof httpException_util_1.default) {
