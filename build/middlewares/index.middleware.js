@@ -18,7 +18,8 @@ exports.default = (app) => {
     app.use((0, express_session_1.default)({
         secret: 'secret',
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        cookie: { secure: false } // Secure should be true in production with HTTPS
     }));
     app.use(passport_1.default.initialize());
     app.use(passport_1.default.session());
@@ -33,7 +34,7 @@ exports.default = (app) => {
     // CORS middleware
     const allowedOrigins = [
         'https://www.ribh.store',
-        'http://localhost:3000',
+        'http://localhost:3000'
     ];
     const corsOptions = {
         origin: function (origin, callback) {

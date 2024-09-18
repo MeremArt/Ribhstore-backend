@@ -11,6 +11,8 @@ import CustomResponse from "../utils/helpers/response.util";
 import { ADDED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from '../utils/statusCodes.util';
 import { MESSAGES } from "../configs/constants.config";
 import session from 'express-session';
+import { Client } from "twitter-api-sdk";
+import { TwitterApi } from 'twitter-api-v2';
 const {
     CREATED,
     FETCHED,
@@ -28,10 +30,17 @@ const {
 } = new UserService();
 const router = express.Router();
 
+const twitterClient = new TwitterApi({
+    appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
+    appSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
+    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn" as string, // You can use OAuth token for authenticated user
+    accessSecret: "HGbPKbGfWuufpfAIzthxjEsVxGfWKKa6T5vh43mDYSK0I" as string
+});
+
 passport.use(new TwitterStrategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1 as string,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
-    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback",
+    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback",
 },
     (token: string, tokenSecret: string, profile: Profile, done: (error: any, user?: Express.User | false) => void) => {
 
@@ -65,15 +74,8 @@ router.get('/auth/twitter', async (req: Request, res: Response, next: NextFuncti
         return next(new Error('Email not whitelisted'));
     }
 
-    // Store the email in the session
-    // req.session.userEmail = userEmail as string;
-    console.log('Email stored', userEmail);
-
-    (req as any).email = userEmail;
-
-    // res.redirect(`http://localhost:9871/api/v1/auth/twitter/auth/twitter?state=${userEmail}`);
     // Continue with Twitter OAuth
-    passport.authenticate('twitter', { state: "userrrrr" })(req, res, next);
+    passport.authenticate('twitter')(req, res, next);
 });
 
 // Handle Twitter OAuth callback
@@ -83,14 +85,6 @@ router.get('/auth/twitter/callback',
         if (!req.user) {
             return next(new Error('User not authenticated'));
         }
-
-        // const userEmail = (req as any).email;
-        // console.log(req.query.state, "state")
-        // console.log(userEmail, "req")
-        // const email = req.query.state as string;
-        // if (!email) {
-        //     return next(new Error('User email not found in session'));
-        // }
 
         // Find the user in the DB based on email and save Twitter profile info
         // const existingUser = await findByQuery({ email });
@@ -102,7 +96,8 @@ router.get('/auth/twitter/callback',
         // }
 
         // Respond with user information (assuming `req.user` has the necessary fields)
-        return res.json(req.user); // In a real app, consider defining a User type and using `req.user as User`.
+        // res.json(req.user);
+        res.redirect(`http://localhost:3000/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
     }
 );
 
@@ -169,6 +164,36 @@ router.patch('/auth/connectWallet', async (req: Request, res: Response, next: Ne
 
 });
 
+// connect twitterId
+router.patch('/auth/connect-twitter', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { twitterId, email } = req.query;
+        if (!twitterId || !email) {
+            throw new Error("QUERY of twitterId and email is required");
+        }
+
+        const user = await findByQuery({ email });
+        if (user) {
+            user.twitterId = twitterId as string;
+            await user.save();
+        } else {
+            return next(new Error('Email not whitelisted'));
+        }
+
+        return new CustomResponse(OK, true, UPDATED, res, user);
+
+    } catch (error) {
+
+        if (error instanceof HttpException) {
+
+            return new CustomResponse(error.status, false, error.message, res);
+
+        }
+        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+
+});
+
 // Fetch user information from twitter account
 router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -179,26 +204,58 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
         if (!user.twitterId) {
             throw new HttpException(NOT_FOUND, "Please connect twitter account");
         }
-        const url = `https://api.twitter.com/2/users/${user.twitterId}?user.fields=username,profile_image_url,description`;
+
+        console.log(user)
+        const url = `https://api.x.com/2/users/${user.twitterId}`;
+        // const url = `https://api.twitter.com/2/users/${user.twitterId}?user.fields=username,profile_image_url,description`;
+
+        // const client = new Client(process.env.BEARER_TOKEN as string);
+
+        // console.log(client)
+        // const response1 = await client.users.findUsersById({
+        //   "ids": [
+        //       "937750514049142784"
+        //   ],
+        //   "user.fields": [
+        //       "description",
+        //       "id",
+        //       "name",
+        //     //   "profile_banner_url",
+        //       "profile_image_url",
+        //       "url",
+        //       "username"
+        //   ]
+        // });
+           
+        // console.log("response", response1);
+
+        // Log the token for debugging (optional)
+        console.log('Twitter Bearer Token:', process.env.TWITTER_BEARER_TOKEN);
 
         // Use your bearer token for authentication
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${process.env.TWITTER_BEARER_TOKEN}`
-            }
-        });
+        // const response = await axios.get(url, {
+        //     headers: {
+        //         Authorization: `Bearer AAAAAAAAAAAAAAAAAAAAADrUuQEAAAAAZBQ50CshxosQLJ6YJisAHeuHa4o%3DrLrHABw56YTAqjN2Dwik5jjmBUQTogXGILyJyGtppSUqXfjuug`
+        //     }
+        // });
+        const userInfo = await twitterClient.v1.user({user_id:"937750514049142784"}
+        //     , {
+        //     // 'user.fields': ['profile_image_url', 'username', 'name', 'description', 'verified'] // Specify the fields you need
+        // }
+    );
+
 
         // Return the latest Twitter profile data
-        return new CustomResponse(OK, true, UPDATED, res, response.data);
+        return new CustomResponse(OK, true, UPDATED, res, userInfo);
 
-    } catch (error) {
+    } catch (error:any) {
 
         if (error instanceof HttpException) {
 
             return new CustomResponse(error.status, false, error.message, res);
 
         }
-        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error.message}`, res);
     }
 
 });
