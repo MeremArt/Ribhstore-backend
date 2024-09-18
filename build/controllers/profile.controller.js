@@ -36,7 +36,7 @@ const twitterClient = new twitter_api_v2_1.TwitterApi({
 passport_1.default.use(new passport_twitter_1.Strategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,
-    callbackURL: "http://localhost:9871/api/v1/auth/twitter/callback",
+    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback",
 }, (token, tokenSecret, profile, done) => {
     const userProfile = {
         id: profile.id,
@@ -189,13 +189,12 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         //         Authorization: `Bearer AAAAAAAAAAAAAAAAAAAAADrUuQEAAAAAZBQ50CshxosQLJ6YJisAHeuHa4o%3DrLrHABw56YTAqjN2Dwik5jjmBUQTogXGILyJyGtppSUqXfjuug`
         //     }
         // });
-        const userInfo = yield twitterClient.v1.user({ user_id: "937750514049142784" }
-        //     , {
-        //     // 'user.fields': ['profile_image_url', 'username', 'name', 'description', 'verified'] // Specify the fields you need
-        // }
-        );
+        // const userInfo = await twitterClient.currentUserV2()
+        const userInfo = yield twitterClient.v2.userByUsername('Jes_sie___', {
+            'user.fields': ['profile_image_url', 'username', 'name', 'description'] // Specify the fields you need
+        });
         // Return the latest Twitter profile data
-        return new response_util_1.default(statusCodes_util_1.OK, true, UPDATED, res, userInfo);
+        return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, userInfo);
     }
     catch (error) {
         if (error instanceof httpException_util_1.default) {
