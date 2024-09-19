@@ -80,7 +80,8 @@ router.get('/auth/twitter/callback', passport_1.default.authenticate('twitter', 
     // }
     // Respond with user information (assuming `req.user` has the necessary fields)
     // res.json(req.user);
-    res.redirect(`http://localhost:3000/verify-email/connect-accounts?twitterId=${req.user.id}`);
+    res.redirect(`https://blink-store-rb.vercel.app/verify-email/connect-accounts?twitterId=${req.user.id}`);
+    // res.redirect(`http://localhost:3000/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
 }));
 // create profile
 router.post('/auth/whitelist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -163,7 +164,8 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         }
         const userInfo = yield twitterClient.currentUserV2();
         if (!userInfo) {
-            res.redirect("http://localhost:3000/verify-email/connect-accounts");
+            res.redirect("https://blink-store-rb.vercel.app/verify-email/connect-accounts");
+            // res.redirect("http://localhost:3000/verify-email/connect-accounts")
         }
         const data = yield twitterClient.v2.userByUsername(userInfo.data.username, {
             'user.fields': ['profile_image_url', 'username', 'name']
