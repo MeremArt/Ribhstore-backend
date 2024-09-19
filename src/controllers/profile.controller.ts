@@ -97,7 +97,7 @@ router.get('/auth/twitter/callback',
 
         // Respond with user information (assuming `req.user` has the necessary fields)
         // res.json(req.user);
-        res.redirect(`https://blink-store-rb.vercel.app/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
+        res.redirect(`https://www.ribh.store/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
         // res.redirect(`http://localhost:3000/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
     }
 );
@@ -210,7 +210,7 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
         const userInfo = await twitterClient.currentUserV2()
 
         if (!userInfo) {
-            res.redirect("https://blink-store-rb.vercel.app/verify-email/connect-accounts")
+            res.redirect("https://www.ribh.store/verify-email/connect-accounts")
             // res.redirect("http://localhost:3000/verify-email/connect-accounts")
         }
 
