@@ -2,16 +2,12 @@ import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as TwitterStrategy, Profile } from 'passport-twitter';
 import UserService from "../services/user.service";
-import IUser from '../interfaces/user.interface';
 import { configDotenv } from 'dotenv';
 configDotenv();
-import axios from 'axios';
 import HttpException from '../utils/helpers/httpException.util';
 import CustomResponse from "../utils/helpers/response.util";
 import { ADDED, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from '../utils/statusCodes.util';
 import { MESSAGES } from "../configs/constants.config";
-import session from 'express-session';
-import { Client } from "twitter-api-sdk";
 import { TwitterApi } from 'twitter-api-v2';
 const {
     CREATED,
@@ -33,7 +29,7 @@ const router = express.Router();
 const twitterClient = new TwitterApi({
     appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
     appSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
-    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn" as string, // You can use OAuth token for authenticated user
+    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn" as string,
     accessSecret: "HGbPKbGfWuufpfAIzthxjEsVxGfWKKa6T5vh43mDYSK0I" as string
 });
 
@@ -207,19 +203,9 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
             throw new HttpException(NOT_FOUND, "Please connect twitter account");
         }
 
-        const userInfo = await twitterClient.currentUserV2()
+        const userinfo = await twitterClient.v2.user(user.twitterId);
 
-        if (!userInfo) {
-            res.redirect("https://www.ribh.store/verify-email/connect-accounts")
-            // res.redirect("http://localhost:3000/verify-email/connect-accounts")
-        }
-
-        const data = await twitterClient.v2.userByUsername(userInfo.data.username, {
-            'user.fields': ['profile_image_url', 'username', 'name']
-        });
-
-        // Return the latest Twitter profile data
-        return new CustomResponse(OK, true, FETCHED, res, data.data);
+        return new CustomResponse(OK, true, FETCHED, res, userinfo);
 
     } catch (error: any) {
 

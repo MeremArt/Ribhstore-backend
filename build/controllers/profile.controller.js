@@ -30,7 +30,7 @@ const router = express_1.default.Router();
 const twitterClient = new twitter_api_v2_1.TwitterApi({
     appKey: process.env.TWITTER_CONSUMER_KEY1,
     appSecret: process.env.TWITTER_CONSUMER_SECRET1,
-    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn", // You can use OAuth token for authenticated user
+    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn",
     accessSecret: "HGbPKbGfWuufpfAIzthxjEsVxGfWKKa6T5vh43mDYSK0I"
 });
 passport_1.default.use(new passport_twitter_1.Strategy({
@@ -162,16 +162,8 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!user.twitterId) {
             throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, "Please connect twitter account");
         }
-        const userInfo = yield twitterClient.currentUserV2();
-        if (!userInfo) {
-            res.redirect("https://www.ribh.store/verify-email/connect-accounts");
-            // res.redirect("http://localhost:3000/verify-email/connect-accounts")
-        }
-        const data = yield twitterClient.v2.userByUsername(userInfo.data.username, {
-            'user.fields': ['profile_image_url', 'username', 'name']
-        });
-        // Return the latest Twitter profile data
-        return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, data.data);
+        const userinfo = yield twitterClient.v2.user(user.twitterId);
+        return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, userinfo);
     }
     catch (error) {
         if (error instanceof httpException_util_1.default) {
