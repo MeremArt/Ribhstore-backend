@@ -26,12 +26,15 @@ const {
 } = new UserService();
 const router = express.Router();
 
-const twitterClient = new TwitterApi({
-    appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
-    appSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
-    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn" as string,
-    accessSecret: "HGbPKbGfWuufpfAIzthxjEsVxGfWKKa6T5vh43mDYSK0I" as string
-});
+// const twitterClient = new TwitterApi({
+//     appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
+//     appSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
+//     accessToken: "" as string,
+//     accessSecret: "" as string
+// });
+// www.ribh.xyz
+
+const twitterClient = new TwitterApi(process.env.TWITTER_BEARER_TOKEN as string)
 
 passport.use(new TwitterStrategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1 as string,
@@ -203,7 +206,8 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
             throw new HttpException(NOT_FOUND, "Please connect twitter account");
         }
 
-        const userinfo = await twitterClient.v2.user(user.twitterId);
+        // const userinfo = await twitterClient.v1.user({ user_id: user.twitterId });
+        const userinfo = await twitterClient.v1.user({ user_id: user.twitterId });
 
         return new CustomResponse(OK, true, FETCHED, res, userinfo);
 

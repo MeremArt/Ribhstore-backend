@@ -27,12 +27,14 @@ const { CREATED, FETCHED, UPDATED, NO_QUERY, USER_NOT_FOUND } = constants_config
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
 const { create, findById, findByQuery } = new user_service_1.default();
 const router = express_1.default.Router();
-const twitterClient = new twitter_api_v2_1.TwitterApi({
-    appKey: process.env.TWITTER_CONSUMER_KEY1,
-    appSecret: process.env.TWITTER_CONSUMER_SECRET1,
-    accessToken: "937750514049142784-uAzaI3PR6c80Rjm5MIW2pWxr2Uf7nVn",
-    accessSecret: "HGbPKbGfWuufpfAIzthxjEsVxGfWKKa6T5vh43mDYSK0I"
-});
+// const twitterClient = new TwitterApi({
+//     appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
+//     appSecret: process.env.TWITTER_CONSUMER_SECRET1 as string,
+//     accessToken: "" as string,
+//     accessSecret: "" as string
+// });
+// www.ribh.xyz
+const twitterClient = new twitter_api_v2_1.TwitterApi(process.env.TWITTER_BEARER_TOKEN);
 passport_1.default.use(new passport_twitter_1.Strategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,
@@ -162,7 +164,8 @@ router.get('/user/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!user.twitterId) {
             throw new httpException_util_1.default(statusCodes_util_1.NOT_FOUND, "Please connect twitter account");
         }
-        const userinfo = yield twitterClient.v2.user(user.twitterId);
+        // const userinfo = await twitterClient.v1.user({ user_id: user.twitterId });
+        const userinfo = yield twitterClient.v1.user({ user_id: user.twitterId });
         return new response_util_1.default(statusCodes_util_1.OK, true, FETCHED, res, userinfo);
     }
     catch (error) {
