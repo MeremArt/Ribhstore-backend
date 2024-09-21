@@ -38,7 +38,7 @@ const twitterClient = new twitter_api_v2_1.TwitterApi(process.env.TWITTER_BEARER
 passport_1.default.use(new passport_twitter_1.Strategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY1,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET1,
-    callbackURL: "https://ribh-store.vercel.app/api/v1/auth/twitter/callback",
+    callbackURL: "https://www.ribh.xyz/api/v1/auth/twitter/callback",
 }, (token, tokenSecret, profile, done) => {
     const userProfile = {
         id: profile.id,
