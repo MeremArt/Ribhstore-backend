@@ -22,7 +22,8 @@ const {
 const {
     create,
     findById,
-    findByQuery
+    findByQuery,
+    find
 } = new UserService();
 const router = express.Router();
 
@@ -113,6 +114,26 @@ router.post('/waitlist', async (req: Request, res: Response, next: NextFunction)
         }
 
         return new CustomResponse(ADDED, true, CREATED, res, user);
+
+    } catch (error) {
+
+        if (error instanceof HttpException) {
+
+            return new CustomResponse(error.status, false, error.message, res);
+
+        }
+        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+});
+
+// get waitlist
+router.get('/waitlist', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        // const email: string = req.body.email;
+        let users = await find({ hasAccess: false });
+
+        return new CustomResponse(ADDED, true, "Users in waitlist fetched", res, users);
 
     } catch (error) {
 

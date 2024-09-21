@@ -62,5 +62,18 @@ class UserService {
             }
         });
     }
+    find(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const users = yield UserRepository.find(params);
+                return users;
+            }
+            catch (error) {
+                if ((error.status === statusCodes_util_1.NOT_FOUND) || (error.status === constants_config_1.MESSAGES.NOT_ID))
+                    throw error;
+                throw new httpException_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, error.message);
+            }
+        });
+    }
 }
 exports.default = UserService;

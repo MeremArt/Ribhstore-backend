@@ -57,4 +57,18 @@ export default class UserService {
         }
     }
 
+    async find(params: {}) {
+        try {
+            const users = await UserRepository.find(params);
+
+            return users;
+
+        } catch (error: any) {
+
+            if ((error.status === NOT_FOUND) || (error.status === MESSAGES.NOT_ID)) throw error;
+
+            throw new HttpException(INTERNAL_SERVER_ERROR, error.message);
+        }
+    }
+
 }

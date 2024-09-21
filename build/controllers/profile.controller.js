@@ -25,7 +25,7 @@ const constants_config_1 = require("../configs/constants.config");
 const twitter_api_v2_1 = require("twitter-api-v2");
 const { CREATED, FETCHED, UPDATED, NO_QUERY, USER_NOT_FOUND } = constants_config_1.MESSAGES.USER;
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
-const { create, findById, findByQuery } = new user_service_1.default();
+const { create, findById, findByQuery, find } = new user_service_1.default();
 const router = express_1.default.Router();
 // const twitterClient = new TwitterApi({
 //     appKey: process.env.TWITTER_CONSUMER_KEY1 as string,
@@ -94,6 +94,20 @@ router.post('/waitlist', (req, res, next) => __awaiter(void 0, void 0, void 0, f
             user = yield create({ email, hasAccess: false });
         }
         return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, user);
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
+// get waitlist
+router.get('/waitlist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // const email: string = req.body.email;
+        let users = yield find({ hasAccess: false });
+        return new response_util_1.default(statusCodes_util_1.ADDED, true, "Users in waitlist fetched", res, users);
     }
     catch (error) {
         if (error instanceof httpException_util_1.default) {
