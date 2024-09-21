@@ -22,6 +22,11 @@ const userSchema = new mongoose_1.Schema({
         default: null,
         trim: true,
         unique: true
+    },
+    hasAccess: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, {
     strict: true,

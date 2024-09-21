@@ -21,7 +21,7 @@ exports.MESSAGES = {
         NO_QUERY: "Please provide the needed query."
     },
     USER: {
-        CREATED: "User added successfully.",
+        CREATED: "User waitlisted successfully.",
         UPDATED: "User profile updated successfully.",
         FETCHED: "User's info fetched successfully.",
         USER_NOT_FOUND: "User not found.",

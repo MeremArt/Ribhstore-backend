@@ -22,6 +22,11 @@ const userSchema = new Schema<IUser>({
         default: null,
         trim: true,
         unique: true
+    },
+    hasAccess: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, {
     strict: true,

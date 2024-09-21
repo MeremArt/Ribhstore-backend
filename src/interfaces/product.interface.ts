@@ -6,4 +6,5 @@ export default interface IProduct extends Document {
     image: string;
     description: string;
     price: number;
+    amount: number;
 }

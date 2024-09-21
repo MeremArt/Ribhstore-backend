@@ -28,6 +28,11 @@ const productSchema = new Schema<IProduct>({
         required: false,
         min: 0
     },
+    amount: {
+        type: Number,
+        required: true,
+        min: 1
+    }
 }, {
     strict: true,
     versionKey: false

@@ -60,7 +60,7 @@ router.get('/auth/twitter', (req, res, next) => __awaiter(void 0, void 0, void 0
     if (!userEmail) {
         return res.status(400).json({ error: 'Email is required' });
     }
-    const existingUser = yield findByQuery({ email: userEmail });
+    const existingUser = yield findByQuery({ email: userEmail, hasAccess: true });
     if (!existingUser) {
         return next(new Error('Email not whitelisted'));
     }
@@ -85,19 +85,39 @@ router.get('/auth/twitter/callback', passport_1.default.authenticate('twitter', 
     res.redirect(`https://www.ribh.store/verify-email/connect-accounts?twitterId=${req.user.id}`);
     // res.redirect(`http://localhost:3000/verify-email/connect-accounts?twitterId=${(req as any).user.id}`);
 }));
+// join waitlist
+router.post('/waitlist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const email = req.body.email;
+        let user = yield findByQuery({ email });
+        if (!user) {
+            user = yield create({ email, hasAccess: false });
+        }
+        return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, user);
+    }
+    catch (error) {
+        if (error instanceof httpException_util_1.default) {
+            return new response_util_1.default(error.status, false, error.message, res);
+        }
+        return new response_util_1.default(statusCodes_util_1.INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+}));
 // create profile
-router.post('/auth/whitelist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.patch('/whitelist', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const emails = req.body.emails;
         const whitelistedUsers = yield Promise.all(emails.map((email) => __awaiter(void 0, void 0, void 0, function* () {
             // Check if the user is already whitelisted or create a new record
             let user = yield findByQuery({ email });
             if (!user) {
-                user = yield create({ email });
+                user = yield create({ email, hasAccess: true });
+            }
+            else if (user.hasAccess === false) {
+                user.hasAccess = true;
             }
             return user;
         })));
-        return new response_util_1.default(statusCodes_util_1.ADDED, true, CREATED, res, whitelistedUsers);
+        return new response_util_1.default(statusCodes_util_1.ADDED, true, "User whitelisted successfully", res, whitelistedUsers);
     }
     catch (error) {
         if (error instanceof httpException_util_1.default) {
@@ -113,7 +133,7 @@ router.patch('/auth/connect-wallet', (req, res, next) => __awaiter(void 0, void 
         if (!email) {
             throw new Error("QUERY is required");
         }
-        const user = yield findByQuery({ email });
+        const user = yield findByQuery({ email, hasAccess: true });
         if (user) {
             user.pubKey = req.body.pubKey;
             yield user.save();
@@ -137,7 +157,7 @@ router.patch('/auth/connect-twitter', (req, res, next) => __awaiter(void 0, void
         if (!twitterId || !email) {
             throw new Error("QUERY of twitterId and email is required");
         }
-        const user = yield findByQuery({ email });
+        const user = yield findByQuery({ email, hasAccess: true });
         if (user) {
             user.twitterId = twitterId;
             yield user.save();
@@ -182,7 +202,7 @@ router.get('/user', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (!email) {
             throw new Error("QUERY is required");
         }
-        const user = yield findByQuery({ email });
+        const user = yield findByQuery({ email, hasAccess: true });
         if (user) {
             return new response_util_1.default(statusCodes_util_1.OK, true, "Email is whitelisted", res, user);
         }

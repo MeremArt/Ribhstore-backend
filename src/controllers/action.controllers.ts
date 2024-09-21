@@ -21,6 +21,10 @@ export default class ActionController {
 
   async getAction(req: Request, res: Response) {
     try {
+      const baseHref = new URL(
+        `${req.protocol}://${req.get('host')}${req.originalUrl}`
+      ).toString();
+
       const productName = req.params.name.replace(/-/g, ' ');
       const product = await findByName(productName);
 
@@ -33,6 +37,21 @@ export default class ActionController {
         label: `Buy Now (${product?.price} SOL)`,
         description: `${product?.description}`,
         title: `${product?.name}`,
+        disabled: product.amount <= 0,
+        links: {
+          actions: [
+            {
+              label: `Buy Now (${product?.price} SOL)`,
+              href: `${baseHref}?amount={amount}`,
+              parameters: [
+                {
+                  name: "amount",
+                  label: "Enter a custom USDC amount"
+                }
+              ]
+            }
+          ]
+        }
       };
 
       res.set(ACTIONS_CORS_HEADERS);
@@ -67,9 +86,10 @@ export default class ActionController {
 
       const connection = new Connection(process.env.SOLANA_RPC! || clusterApiUrl("devnet"));
 
-      const minimumBalance = await connection.getMinimumBalanceForRentExemption(0);
+      const amount = parseFloat(req.query.amount as any);
+      if (amount <= 0) throw new Error("amount is too small");
 
-      const price = product?.price!;
+      const price = product?.price! * amount;
       const sellerPubkey: PublicKey = new PublicKey(product?.merchantId as string);
 
       const transaction = new Transaction();

@@ -68,7 +68,7 @@ router.get('/auth/twitter', async (req: Request, res: Response, next: NextFuncti
         return res.status(400).json({ error: 'Email is required' });
     }
 
-    const existingUser = await findByQuery({ email: userEmail });
+    const existingUser = await findByQuery({ email: userEmail, hasAccess: true });
     if (!existingUser) {
         return next(new Error('Email not whitelisted'));
     }
@@ -101,8 +101,32 @@ router.get('/auth/twitter/callback',
     }
 );
 
+// join waitlist
+router.post('/waitlist', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const email: string = req.body.email;
+        let user = await findByQuery({ email });
+
+        if (!user) {
+            user = await create({ email, hasAccess: false });
+        }
+
+        return new CustomResponse(ADDED, true, CREATED, res, user);
+
+    } catch (error) {
+
+        if (error instanceof HttpException) {
+
+            return new CustomResponse(error.status, false, error.message, res);
+
+        }
+        return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}: ${error}`, res);
+    }
+});
+
 // create profile
-router.post('/auth/whitelist', async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/whitelist', async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const emails: string[] = req.body.emails
@@ -114,14 +138,16 @@ router.post('/auth/whitelist', async (req: Request, res: Response, next: NextFun
                 let user = await findByQuery({ email });
 
                 if (!user) {
-                    user = await create({ email });
+                    user = await create({ email, hasAccess: true });
+                } else if (user.hasAccess === false) {
+                    user.hasAccess = true;
                 }
 
                 return user;
             })
         );
 
-        return new CustomResponse(ADDED, true, CREATED, res, whitelistedUsers);
+        return new CustomResponse(ADDED, true, "User whitelisted successfully", res, whitelistedUsers);
 
     } catch (error) {
 
@@ -142,7 +168,7 @@ router.patch('/auth/connect-wallet', async (req: Request, res: Response, next: N
             throw new Error("QUERY is required");
         }
 
-        const user = await findByQuery({ email });
+        const user = await findByQuery({ email, hasAccess: true });
         if (user) {
             user.pubKey = req.body.pubKey;
             await user.save();
@@ -172,7 +198,7 @@ router.patch('/auth/connect-twitter', async (req: Request, res: Response, next: 
             throw new Error("QUERY of twitterId and email is required");
         }
 
-        const user = await findByQuery({ email });
+        const user = await findByQuery({ email, hasAccess: true });
         if (user) {
             user.twitterId = twitterId as string;
             await user.save();
@@ -232,7 +258,7 @@ router.get('/user', async (req: Request, res: Response, next: NextFunction) => {
             throw new Error("QUERY is required");
         }
 
-        const user = await findByQuery({ email });
+        const user = await findByQuery({ email, hasAccess: true });
         if (user) {
             return new CustomResponse(OK, true, "Email is whitelisted", res, user);
         } else {

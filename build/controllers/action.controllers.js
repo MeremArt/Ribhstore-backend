@@ -24,6 +24,7 @@ class ActionController {
     getAction(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const baseHref = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`).toString();
                 const productName = req.params.name.replace(/-/g, ' ');
                 const product = yield findByName(productName);
                 if (!product) {
@@ -34,6 +35,21 @@ class ActionController {
                     label: `Buy Now (${product === null || product === void 0 ? void 0 : product.price} SOL)`,
                     description: `${product === null || product === void 0 ? void 0 : product.description}`,
                     title: `${product === null || product === void 0 ? void 0 : product.name}`,
+                    disabled: product.amount <= 0,
+                    links: {
+                        actions: [
+                            {
+                                label: `Buy Now (${product === null || product === void 0 ? void 0 : product.price} SOL)`,
+                                href: `${baseHref}?amount={amount}`,
+                                parameters: [
+                                    {
+                                        name: "amount",
+                                        label: "Enter a custom USDC amount"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 };
                 res.set(constants_config_1.ACTIONS_CORS_HEADERS);
                 return res.json(payload);
@@ -64,8 +80,10 @@ class ActionController {
                     return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, 'Invalid account provided', res);
                 }
                 const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("devnet"));
-                const minimumBalance = yield connection.getMinimumBalanceForRentExemption(0);
-                const price = product === null || product === void 0 ? void 0 : product.price;
+                const amount = parseFloat(req.query.amount);
+                if (amount <= 0)
+                    throw new Error("amount is too small");
+                const price = (product === null || product === void 0 ? void 0 : product.price) * amount;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
                 const transaction = new web3_js_1.Transaction();
                 transaction.add(web3_js_1.SystemProgram.transfer({

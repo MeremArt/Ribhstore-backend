@@ -4,4 +4,5 @@ export default interface IUser extends Document {
     email: string;
     twitterId?: string;
     pubKey?: string;
+    hasAccess: boolean;
 }
