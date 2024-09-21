@@ -85,6 +85,8 @@ class ActionController {
                     throw new Error("amount is too small");
                 const price = (product === null || product === void 0 ? void 0 : product.price) * amount;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
+                product.amount -= amount;
+                product.save();
                 const transaction = new web3_js_1.Transaction();
                 transaction.add(web3_js_1.SystemProgram.transfer({
                     fromPubkey: account,

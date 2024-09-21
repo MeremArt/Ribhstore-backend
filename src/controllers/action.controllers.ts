@@ -92,6 +92,8 @@ export default class ActionController {
       const price = product?.price! * amount;
       const sellerPubkey: PublicKey = new PublicKey(product?.merchantId as string);
 
+      product.amount -= amount;
+      product.save();
       const transaction = new Transaction();
       transaction.add(
         SystemProgram.transfer({
