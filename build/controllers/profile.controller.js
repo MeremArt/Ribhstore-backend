@@ -128,6 +128,7 @@ router.patch('/whitelist', (req, res, next) => __awaiter(void 0, void 0, void 0,
             }
             else if (user.hasAccess === false) {
                 user.hasAccess = true;
+                yield user.save();
             }
             return user;
         })));

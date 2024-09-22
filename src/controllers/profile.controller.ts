@@ -162,6 +162,7 @@ router.patch('/whitelist', async (req: Request, res: Response, next: NextFunctio
                     user = await create({ email, hasAccess: true });
                 } else if (user.hasAccess === false) {
                     user.hasAccess = true;
+                    await user.save();
                 }
 
                 return user;
