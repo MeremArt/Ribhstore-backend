@@ -18,7 +18,7 @@ const {
 const {
     UNEXPECTED_ERROR
 } = MESSAGES;
-const deployedLink = "https://ribh-store.vercel.app";
+const deployedLink = "https://www.ribh.xyz";
 
 export default class ProductController {
 

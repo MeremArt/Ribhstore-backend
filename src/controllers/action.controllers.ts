@@ -21,6 +21,7 @@ export default class ActionController {
 
   async getAction(req: Request, res: Response) {
     try {
+      console.log("here")
       const baseHref = new URL(
         `${req.protocol}://${req.get('host')}${req.originalUrl}`
       ).toString();

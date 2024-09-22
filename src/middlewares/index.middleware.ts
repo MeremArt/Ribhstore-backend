@@ -38,7 +38,8 @@ export default (app: Application) => {
 
   const allowedOrigins = [
     'https://www.ribh.store',
-    'http://localhost:3000'
+    'http://localhost:3000',
+    "https://dial.to"
   ];
   
   const corsOptions = {

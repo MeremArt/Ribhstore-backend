@@ -34,7 +34,8 @@ exports.default = (app) => {
     // CORS middleware
     const allowedOrigins = [
         'https://www.ribh.store',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        "https://dial.to"
     ];
     const corsOptions = {
         origin: function (origin, callback) {

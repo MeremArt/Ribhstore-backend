@@ -24,6 +24,7 @@ class ActionController {
     getAction(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("here");
                 const baseHref = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`).toString();
                 const productName = req.params.name.replace(/-/g, ' ');
                 const product = yield findByName(productName);
