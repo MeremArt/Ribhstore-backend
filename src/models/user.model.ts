@@ -7,24 +7,19 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true,
         trim: true,
-        sparse: true,
         unique: true
     },
     twitterId: {
         type: String,
         required: false,
         default: null,
-        trim: true,
-        sparse: true,
-        unique: true
+        trim: true
     },
     pubKey: {
         type: String,
         required: false,
         default: null,
-        sparse: true,
-        trim: true,
-        unique: true
+        trim: true
     },
     hasAccess: {
         type: Boolean,
@@ -35,6 +30,10 @@ const userSchema = new Schema<IUser>({
     strict: true,
     versionKey: false
 });
+
+// Adding sparse unique indexes for `twitterId` and `pubKey`
+userSchema.index({ twitterId: 1 }, { unique: true, sparse: true });
+userSchema.index({ pubKey: 1 }, { unique: true, sparse: true });
 
 const User = model<IUser>(DATABASES.USER, userSchema, DATABASES.USER);
 export default User;
