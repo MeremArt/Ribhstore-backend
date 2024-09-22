@@ -7,6 +7,7 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true,
         trim: true,
+        sparse: true,
         unique: true
     },
     twitterId: {
@@ -14,12 +15,14 @@ const userSchema = new Schema<IUser>({
         required: false,
         default: null,
         trim: true,
+        sparse: true,
         unique: true
     },
     pubKey: {
         type: String,
         required: false,
         default: null,
+        sparse: true,
         trim: true,
         unique: true
     },
