@@ -45,7 +45,7 @@ class ActionController {
                                 parameters: [
                                     {
                                         name: "amount",
-                                        label: "Enter a custom USDC amount"
+                                        label: "Enter a custom quantity"
                                     }
                                 ]
                             }
