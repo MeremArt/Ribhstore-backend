@@ -7,24 +7,19 @@ const userSchema = new mongoose_1.Schema({
         type: String,
         required: true,
         trim: true,
-        sparse: true,
         unique: true
     },
     twitterId: {
         type: String,
         required: false,
         default: null,
-        trim: true,
-        sparse: true,
-        unique: true
+        trim: true
     },
     pubKey: {
         type: String,
         required: false,
         default: null,
-        sparse: true,
-        trim: true,
-        unique: true
+        trim: true
     },
     hasAccess: {
         type: Boolean,
@@ -35,5 +30,8 @@ const userSchema = new mongoose_1.Schema({
     strict: true,
     versionKey: false
 });
+// Adding sparse unique indexes for `twitterId` and `pubKey`
+userSchema.index({ twitterId: 1 }, { unique: true, sparse: true });
+userSchema.index({ pubKey: 1 }, { unique: true, sparse: true });
 const User = (0, mongoose_1.model)(constants_config_1.DATABASES.USER, userSchema, constants_config_1.DATABASES.USER);
 exports.default = User;
