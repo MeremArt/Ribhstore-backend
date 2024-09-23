@@ -35,21 +35,33 @@ export default (app: Application) => {
   app.use(morgan("combined"));
 
   // CORS middleware
-
-  const allowedOrigins = [
-    'https://www.ribh.store',
-    'http://localhost:3000',
-    "https://dial.to"
-  ];
+  // const allowedOrigins = [
+  //   'https://www.ribh.store',
+  //   'http://localhost:3000',
+  //   "https://dial.to"
+  // ];
   
+  // const corsOptions = {
+  //   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+  //     if (allowedOrigins.includes(origin!) || !origin) {
+  //       callback(null, true);
+  //     } else {
+  //       callback(new Error('Not allowed by CORS'), false);
+  //     }
+  //   },
+  //   credentials: true,
+  //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  //   allowedHeaders: [
+  //     'Content-Type',
+  //     'Authorization',
+  //     'X-Requested-With',
+  //     'Accept',
+  //     'Origin'
+  //   ]
+  // };
+
   const corsOptions = {
-    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-      if (allowedOrigins.includes(origin!) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'), false);
-      }
-    },
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -59,7 +71,7 @@ export default (app: Application) => {
       'Accept',
       'Origin'
     ]
-  };
+  };  
   
   app.options('*', cors(corsOptions));
   app.use('*', cors(corsOptions));

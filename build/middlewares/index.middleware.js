@@ -32,20 +32,31 @@ exports.default = (app) => {
     // Logging middleware
     app.use((0, morgan_1.default)("combined"));
     // CORS middleware
-    const allowedOrigins = [
-        'https://www.ribh.store',
-        'http://localhost:3000',
-        "https://dial.to"
-    ];
+    // const allowedOrigins = [
+    //   'https://www.ribh.store',
+    //   'http://localhost:3000',
+    //   "https://dial.to"
+    // ];
+    // const corsOptions = {
+    //   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    //     if (allowedOrigins.includes(origin!) || !origin) {
+    //       callback(null, true);
+    //     } else {
+    //       callback(new Error('Not allowed by CORS'), false);
+    //     }
+    //   },
+    //   credentials: true,
+    //   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    //   allowedHeaders: [
+    //     'Content-Type',
+    //     'Authorization',
+    //     'X-Requested-With',
+    //     'Accept',
+    //     'Origin'
+    //   ]
+    // };
     const corsOptions = {
-        origin: function (origin, callback) {
-            if (allowedOrigins.includes(origin) || !origin) {
-                callback(null, true);
-            }
-            else {
-                callback(new Error('Not allowed by CORS'), false);
-            }
-        },
+        origin: '*',
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: [
