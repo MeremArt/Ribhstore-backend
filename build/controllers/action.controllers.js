@@ -80,7 +80,7 @@ class ActionController {
                 catch (err) {
                     return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, 'Invalid account provided', res);
                 }
-                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("mainnet-beta"));
+                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("devnet"));
                 const amount = parseFloat(req.query.amount);
                 if (amount <= 0)
                     throw new Error("amount is too small");

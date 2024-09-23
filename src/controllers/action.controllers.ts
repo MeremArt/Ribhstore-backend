@@ -85,7 +85,7 @@ export default class ActionController {
         return new CustomResponse(BAD_REQUEST, false, 'Invalid account provided', res);
       }
 
-      const connection = new Connection(process.env.SOLANA_RPC! || clusterApiUrl("mainnet-beta"));
+      const connection = new Connection(process.env.SOLANA_RPC! || clusterApiUrl("devnet"));
 
       const amount = parseFloat(req.query.amount as any);
       if (amount <= 0) throw new Error("amount is too small");
