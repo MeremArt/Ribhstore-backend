@@ -54,7 +54,7 @@ export default class ActionController {
         links: {
           actions: [
             {
-              label: `Buy Now (${product?.price} SOL)`,
+              label: `Buy Now (${product?.price} USDC)`,
               href: `${baseHref}?amount={amount}`,
               parameters: [
                 {
