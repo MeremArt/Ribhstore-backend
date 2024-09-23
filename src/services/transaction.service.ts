@@ -5,7 +5,7 @@ import {
 } from "@solana/web3.js";
 import ITransaction from "../interfaces/transaction.interface";
 
-const solanaConnection = new Connection(clusterApiUrl("devnet"));
+const solanaConnection = new Connection(clusterApiUrl("mainnet-beta"));
 
 export const getTransactions = async (publicKey: string, numTx: number) => {
     try {
@@ -13,6 +13,7 @@ export const getTransactions = async (publicKey: string, numTx: number) => {
 
         // Fetch the initial balance of the wallet
         const initialBalance = await solanaConnection.getBalance(pubKey);
+        // console.log(initialBalance)
 
         // Fetch transaction signatures for the address
         const transactionList = await solanaConnection.getSignaturesForAddress(
@@ -43,7 +44,7 @@ export const getTransactions = async (publicKey: string, numTx: number) => {
             });
         }
 
-        return transactions;
+        return (transactions);
     } catch (error) {
         console.error("Error fetching transactions from Solana:", error);
         throw new Error("Error fetching transactions from Solana.");
