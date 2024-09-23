@@ -11,13 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTransactions = void 0;
 const web3_js_1 = require("@solana/web3.js");
-const solanaConnection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)("devnet"));
+const solanaConnection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)("mainnet-beta"));
 const getTransactions = (publicKey, numTx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         const pubKey = new web3_js_1.PublicKey(publicKey);
         // Fetch the initial balance of the wallet
         const initialBalance = yield solanaConnection.getBalance(pubKey);
+        // console.log(initialBalance)
         // Fetch transaction signatures for the address
         const transactionList = yield solanaConnection.getSignaturesForAddress(pubKey, { limit: numTx });
         const transactions = [];
@@ -35,7 +36,7 @@ const getTransactions = (publicKey, numTx) => __awaiter(void 0, void 0, void 0, 
                 amount: Number((amount / 1e9).toFixed(4)), // Convert lamports to SOL
             });
         }
-        return transactions;
+        return (transactions);
     }
     catch (error) {
         console.error("Error fetching transactions from Solana:", error);
