@@ -25,8 +25,8 @@ class ActionController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("here");
-                const baseHref = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`).toString();
-                const productName = req.params.name.replace(/-/g, ' ');
+                const baseHref = new URL(`${req.protocol}://${req.get("host")}${req.originalUrl}`).toString();
+                const productName = req.params.name.replace(/-/g, " ");
                 const product = yield findByName(productName);
                 if (!product) {
                     return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, `Invalid product name`, res);
@@ -40,17 +40,17 @@ class ActionController {
                     links: {
                         actions: [
                             {
-                                label: `Buy Now (${product === null || product === void 0 ? void 0 : product.price} SOL)`,
+                                label: `Buy Now (${product === null || product === void 0 ? void 0 : product.price} USDC)`,
                                 href: `${baseHref}?amount={amount}`,
                                 parameters: [
                                     {
                                         name: "amount",
-                                        label: "Enter a custom quantity"
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                                        label: "Enter a custom quantity",
+                                    },
+                                ],
+                            },
+                        ],
+                    },
                 };
                 res.set(constants_config_1.ACTIONS_CORS_HEADERS);
                 return res.json(payload);
@@ -66,7 +66,7 @@ class ActionController {
     postAction(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const productName = req.params.name.replace(/-/g, ' ');
+                const productName = req.params.name.replace(/-/g, " ");
                 const product = yield findByName(productName);
                 if (!product) {
                     return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, `Invalid product name`, res);
@@ -78,7 +78,7 @@ class ActionController {
                     account = new web3_js_1.PublicKey(body.account);
                 }
                 catch (err) {
-                    return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, 'Invalid account provided', res);
+                    return new response_util_1.default(statusCodes_util_1.BAD_REQUEST, false, "Invalid account provided", res);
                 }
                 const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("devnet"));
                 const amount = parseFloat(req.query.amount);
@@ -97,11 +97,13 @@ class ActionController {
                 transaction.feePayer = account;
                 transaction.recentBlockhash = (yield connection.getLatestBlockhash()).blockhash;
                 const payload = {
-                    transaction: transaction.serialize({
+                    transaction: transaction
+                        .serialize({
                         requireAllSignatures: false,
                         verifySignatures: true,
-                    }).toString('base64'),
-                    message: `You've successfully purchased ${product === null || product === void 0 ? void 0 : product.name} for ${price} SOL 🎊`,
+                    })
+                        .toString("base64"),
+                    message: `You've successfully purchased ${product === null || product === void 0 ? void 0 : product.name} for ${price} USDC 🎊`,
                 };
                 res.set(constants_config_1.ACTIONS_CORS_HEADERS);
                 return res.status(200).json(payload);

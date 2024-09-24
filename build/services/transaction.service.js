@@ -8,10 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTransactions = void 0;
 const web3_js_1 = require("@solana/web3.js");
-const solanaConnection = new web3_js_1.Connection((0, web3_js_1.clusterApiUrl)("mainnet-beta"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+// Use QuickNode RPC endpoint instead of clusterApiUrl
+// Use environment variable for Solana RPC URL
+const solanaRpcUrl = process.env.PUBLIC_SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
+const solanaConnection = new web3_js_1.Connection(solanaRpcUrl);
 const getTransactions = (publicKey, numTx) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
@@ -36,7 +44,7 @@ const getTransactions = (publicKey, numTx) => __awaiter(void 0, void 0, void 0, 
                 amount: Number((amount / 1e9).toFixed(4)), // Convert lamports to SOL
             });
         }
-        return (transactions);
+        return transactions;
     }
     catch (error) {
         console.error("Error fetching transactions from Solana:", error);
