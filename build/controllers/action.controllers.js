@@ -109,12 +109,15 @@ class ActionController {
                         headers: constants_config_1.ACTIONS_CORS_HEADERS,
                     });
                 }
-                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("mainnet-beta"));
+                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("devnet"));
                 const quantity = parseFloat(req.query.amount);
                 if (quantity <= 0)
                     throw new Error("amount is too small");
                 const amount = (product === null || product === void 0 ? void 0 : product.price) * quantity;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
+                product.amount -= quantity;
+                yield product.save();
+                // const connection = new Connection(clusterApiUrl("mainnet-beta"));
                 const decimals = 6; // In the example, we use 6 decimals for USDC, but you can use any SPL token
                 const mintAddress = new web3_js_1.PublicKey(SOLANA_MAINNET_USDC_PUBKEY);
                 let transferAmount = parseFloat(amount.toString());

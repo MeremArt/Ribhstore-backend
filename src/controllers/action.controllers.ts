@@ -113,7 +113,7 @@ export default class ActionController {
       }
 
       const connection = new Connection(
-        process.env.SOLANA_RPC! || clusterApiUrl("mainnet-beta")
+        process.env.SOLANA_RPC! || clusterApiUrl("devnet")
       );
 
       const quantity = parseFloat(req.query.amount as any);
@@ -124,6 +124,10 @@ export default class ActionController {
         product?.merchantId as string
       );
 
+      product.amount -= quantity;
+      await product.save();
+  
+      // const connection = new Connection(clusterApiUrl("mainnet-beta"));
       const decimals = 6; // In the example, we use 6 decimals for USDC, but you can use any SPL token
       const mintAddress = new PublicKey(SOLANA_MAINNET_USDC_PUBKEY);
     
