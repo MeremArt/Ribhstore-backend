@@ -20,7 +20,7 @@ const httpException_util_1 = __importDefault(require("../utils/helpers/httpExcep
 const { create, findById, findAll, findByName, count } = new product_service_1.default();
 const { CREATED, FETCHED, NO_QUERY } = constants_config_1.MESSAGES.PRODUCT;
 const { UNEXPECTED_ERROR } = constants_config_1.MESSAGES;
-const deployedLink = "https://www.ribh.xyz";
+const deployedLink = "https://dial.to/?action=solana-action:https://www.ribh.xyz";
 class ProductController {
     addProduct(req, res) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -19,7 +19,7 @@ const {
 const {
     UNEXPECTED_ERROR
 } = MESSAGES;
-const deployedLink = "https://www.ribh.xyz";
+const deployedLink = "https://dial.to/?action=solana-action:https://www.ribh.xyz";
 
 export default class ProductController {
 
