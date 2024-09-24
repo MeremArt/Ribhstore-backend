@@ -8,7 +8,8 @@ const {
     create,
     findById,
     findAll,
-    findByName
+    findByName,
+    count
 } = new ProductService();
 const {
     CREATED,
@@ -82,6 +83,25 @@ export default class ProductController {
             const product = await findAll();
 
             return new CustomResponse(OK, true, FETCHED, res, product);
+
+        } catch (error) {
+
+            if (error instanceof HttpException) {
+
+                return new CustomResponse(error.status, false, error.message, res);
+
+            }
+            return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}\n Error: ${error}`, res);
+        }
+    }
+
+    async getProductCount(req: Request, res: Response) {
+
+        try {
+
+            const productCount = await count({ merchantId: req.params.id });
+
+            return new CustomResponse(OK, true, FETCHED, res, { productCount });
 
         } catch (error) {
 

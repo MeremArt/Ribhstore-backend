@@ -109,7 +109,7 @@ class ActionController {
                         headers: constants_config_1.ACTIONS_CORS_HEADERS,
                     });
                 }
-                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("devnet"));
+                const connection = new web3_js_1.Connection(process.env.SOLANA_RPC || (0, web3_js_1.clusterApiUrl)("mainnet-beta"));
                 const quantity = parseFloat(req.query.amount);
                 if (quantity <= 0)
                     throw new Error("amount is too small");

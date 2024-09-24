@@ -72,4 +72,18 @@ export default class ProductService {
         }
     }
 
+    async count(params: {}) {
+        try {
+            const count = await ProductRepository.countDocuments(params);
+
+            return count;
+
+        } catch (error: any) {
+
+            if ((error.status === NOT_FOUND) || (error.status === MESSAGES.NOT_ID)) throw error;
+
+            throw new HttpException(INTERNAL_SERVER_ERROR, error.message);
+        }
+    }
+
 }
