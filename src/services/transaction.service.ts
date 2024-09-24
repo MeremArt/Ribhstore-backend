@@ -5,11 +5,13 @@ import {
 } from "@solana/web3.js";
 import ITransaction from "../interfaces/transaction.interface";
 
-const solanaConnection = new Connection(clusterApiUrl("mainnet-beta"));
+const solanaConnection = new Connection("https://long-withered-paper.solana-mainnet.quiknode.pro/35927df28741e5bef80b6f558cc3d2165bbf1c40/");
 
 export const getTransactions = async (publicKey: string, numTx: number) => {
     try {
         const pubKey = new PublicKey(publicKey);
+
+        console.log(await solanaConnection.getSlot());
 
         // Fetch the initial balance of the wallet
         const initialBalance = await solanaConnection.getBalance(pubKey);
