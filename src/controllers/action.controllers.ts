@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import ProductService from "../services/product.service";
 import CustomResponse from "../utils/helpers/response.util";
 import { ACTIONS_CORS_HEADERS, MESSAGES } from "../configs/constants.config";
+import * as splToken from "@solana/spl-token";
 import {
   INTERNAL_SERVER_ERROR,
   OK,
@@ -20,10 +21,12 @@ import {
   ActionGetResponse,
   ActionPostRequest,
   ActionPostResponse,
+  createPostResponse,
 } from "@solana/actions";
 
 const { findByName } = new ProductService();
 const { UNEXPECTED_ERROR } = MESSAGES;
+const SOLANA_MAINNET_USDC_PUBKEY = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
 export default class ActionController {
   async getAction(req: Request, res: Response) {
@@ -103,50 +106,88 @@ export default class ActionController {
       try {
         account = new PublicKey(body.account);
       } catch (err) {
-        return new CustomResponse(
-          BAD_REQUEST,
-          false,
-          "Invalid account provided",
-          res
-        );
+        return new Response('Invalid "account" provided', {
+          status: 400,
+          headers: ACTIONS_CORS_HEADERS,
+        });
       }
 
       const connection = new Connection(
         process.env.SOLANA_RPC! || clusterApiUrl("devnet")
       );
 
-      const amount = parseFloat(req.query.amount as any);
-      if (amount <= 0) throw new Error("amount is too small");
+      const quantity = parseFloat(req.query.amount as any);
+      if (quantity <= 0) throw new Error("amount is too small");
 
-      const price = product?.price! * amount;
+      const amount = product?.price! * quantity;
       const sellerPubkey: PublicKey = new PublicKey(
         product?.merchantId as string
       );
 
-      product.amount -= amount;
-      product.save();
-      const transaction = new Transaction();
-      transaction.add(
-        SystemProgram.transfer({
-          fromPubkey: account,
-          toPubkey: sellerPubkey,
-          lamports: Math.floor(price * LAMPORTS_PER_SOL),
-        })
+      const decimals = 6; // In the example, we use 6 decimals for USDC, but you can use any SPL token
+      const mintAddress = new PublicKey(SOLANA_MAINNET_USDC_PUBKEY);
+    
+      let transferAmount: any = parseFloat(amount.toString());
+      transferAmount = transferAmount.toFixed(decimals);
+      transferAmount = transferAmount * Math.pow(10, decimals);
+  
+      const fromTokenAccount = await splToken.getAssociatedTokenAddress(
+        mintAddress,
+        account,
+        false,
+        splToken.TOKEN_PROGRAM_ID,
+        splToken.ASSOCIATED_TOKEN_PROGRAM_ID
       );
+  
+      let toTokenAccount = await splToken.getAssociatedTokenAddress(
+        mintAddress,
+        sellerPubkey,
+        true,
+        splToken.TOKEN_PROGRAM_ID,
+        splToken.ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+  
+      const ifexists = await connection.getAccountInfo(toTokenAccount);
+  
+      let instructions = [];
+  
+      if (!ifexists || !ifexists.data) {
+        let createATAiX = splToken.createAssociatedTokenAccountInstruction(
+          account,
+          toTokenAccount,
+          sellerPubkey,
+          mintAddress,
+          splToken.TOKEN_PROGRAM_ID,
+          splToken.ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+        instructions.push(createATAiX);
+      }
+  
+      let transferInstruction = splToken.createTransferInstruction(
+        fromTokenAccount,
+        toTokenAccount,
+        account,
+        transferAmount
+      );
+      instructions.push(transferInstruction);
+  
+      const transaction = new Transaction();
       transaction.feePayer = account;
-      transaction.recentBlockhash = (
-        await connection.getLatestBlockhash()
-      ).blockhash;
-
-      const payload: ActionPostResponse = {
-        transaction: transaction
-          .serialize({
-            requireAllSignatures: false,
-            verifySignatures: true,
-          })
-          .toString("base64"),
-        message: `You've successfully purchased ${product?.name} for ${price} USDC 🎊`,
-      };
+  
+      transaction.add(...instructions);
+  
+      // set the end user as the fee payer
+      transaction.feePayer = account;
+  
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  
+      const payload: ActionPostResponse = await createPostResponse({
+        fields: {
+          transaction,
+          message: `You've successfully purchased ${quantity} ${product?.name} for ${amount} USDC 🎊`,
+        }
+      });
+  
 
       res.set(ACTIONS_CORS_HEADERS);
       return res.status(200).json(payload);
