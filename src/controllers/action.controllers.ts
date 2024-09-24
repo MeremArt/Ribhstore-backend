@@ -113,7 +113,7 @@ export default class ActionController {
       }
 
       const connection = new Connection(
-        process.env.SOLANA_RPC! || clusterApiUrl("devnet")
+        process.env.SOLANA_RPC! || clusterApiUrl("mainnet-beta")
       );
 
       const quantity = parseFloat(req.query.amount as any);
