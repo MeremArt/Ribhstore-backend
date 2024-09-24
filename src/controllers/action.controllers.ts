@@ -124,7 +124,7 @@ export default class ActionController {
         product?.merchantId as string
       );
 
-      product.amount -= quantity;
+      product.amount = product.amount - quantity;
       await product.save();
   
       // const connection = new Connection(clusterApiUrl("mainnet-beta"));

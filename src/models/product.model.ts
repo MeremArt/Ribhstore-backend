@@ -31,7 +31,7 @@ const productSchema = new Schema<IProduct>({
     amount: {
         type: Number,
         required: true,
-        min: 1
+        min: 0
     }
 }, {
     strict: true,

@@ -115,7 +115,7 @@ class ActionController {
                     throw new Error("amount is too small");
                 const amount = (product === null || product === void 0 ? void 0 : product.price) * quantity;
                 const sellerPubkey = new web3_js_1.PublicKey(product === null || product === void 0 ? void 0 : product.merchantId);
-                product.amount -= quantity;
+                product.amount = product.amount - quantity;
                 yield product.save();
                 // const connection = new Connection(clusterApiUrl("mainnet-beta"));
                 const decimals = 6; // In the example, we use 6 decimals for USDC, but you can use any SPL token
