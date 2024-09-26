@@ -4,6 +4,7 @@ import CustomResponse from "../utils/helpers/response.util";
 import { MESSAGES } from "../configs/constants.config";
 import { INTERNAL_SERVER_ERROR, OK, ADDED, BAD_REQUEST } from "../utils/statusCodes.util";
 import HttpException from "../utils/helpers/httpException.util";
+import cloudinary from "../configs/cloudinary.configs";
 const {
     create,
     findById,
@@ -113,4 +114,37 @@ export default class ProductController {
             return new CustomResponse(INTERNAL_SERVER_ERROR, false, `${UNEXPECTED_ERROR}\n Error: ${error}`, res);
         }
     }
+
+    async uploadImage(req: Request, res: Response) {
+        try {
+            let imageUrl;
+            if (req.file) {
+                // Upload file to Cloudinary
+                const result = await cloudinary.uploader.upload(req.file.path, { folder: "RibhStore" });
+                imageUrl = result.secure_url;
+                if (!imageUrl) {
+                    return res.status(409).send({
+                        success: false,
+                        message: "File Upload Failed"
+                    });
+                }
+                return res.status(201)
+                    .send({
+                        success: true,
+                        message: "Image uploaded successfully",
+                        imageUrl
+                    });
+            }
+            return res.status(409).send({
+                success: false,
+                message: "Include an Image file"
+            });
+        } catch (err: any) {
+            return res.status(500).send({
+                success: false,
+                message: err.message
+            });
+        }
+    }
+
 }

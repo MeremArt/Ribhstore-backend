@@ -7,7 +7,8 @@ const express_1 = __importDefault(require("express"));
 const product_controller_1 = __importDefault(require("../controllers/product.controller"));
 const validate_middleware_1 = __importDefault(require("../middlewares/validate.middleware"));
 const product_schema_1 = require("../schemas/product.schema");
-const { addProduct, getProductById, getProducts, getProductCount } = new product_controller_1.default();
+const multer_configs_1 = __importDefault(require("../configs/multer.configs"));
+const { addProduct, getProductById, getProducts, getProductCount, uploadImage } = new product_controller_1.default();
 const router = express_1.default.Router();
 //add a product
 router.post("/", (0, validate_middleware_1.default)(product_schema_1.createSchema), addProduct);
@@ -17,4 +18,6 @@ router.get("/:id", getProductById);
 router.get("/count/:id", getProductCount);
 //get all products
 router.get("/", getProducts);
+//upload profile image
+router.post("/upload", multer_configs_1.default.single("image"), uploadImage);
 exports.default = router;
