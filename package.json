@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "keywords": [],
-  "author": "Adaobi Chuks-Aginam",
+  "author": "Adaobi Chuks-Aginam / Ugo Chinemerem Franklin",
   "license": "ISC",
   "dependencies": {
     "@solana/actions": "^1.6.4",
